@@ -229,3 +229,17 @@ window.CHESS_COURSE.questions.push(
  ]
 }
 );
+
+window.CHESS_COURSE.modules.push(
+  {id:"M12", title:"診斷・難題", subtitle:"不提示、不判分；用你的實際選擇診斷弱點"}
+);
+
+window.CHESS_COURSE.questions.push(
+{
+ id:"M12-Q01",alias:"D1",module:"M12",difficulty:"診斷",title:"D1｜只走最佳第一手",
+ type:"diagnostic",
+ fen:"r1bqrk2/1pp1np2/p3pn2/3p2N1/1B3P2/NP1BP2P/P1PPQ3/R3K1R1 w - - 0 1",
+ prompt:"白方走。不要提示、不要看答案、不要用引擎。給自己最多 3 分鐘，只走你認為最強的一手。",
+ note:"這題頁面不會告訴你對錯。走完後，把顯示的 D1 答案代碼與你的理由貼回 ChatGPT。"
+}
+);
