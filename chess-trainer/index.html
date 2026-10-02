@@ -85,7 +85,7 @@ select,input{width:100%;border:1px solid #39434d;background:#20262c;color:#fff;b
 <header>
   <div>
     <h1>Chess Coach</h1>
-    <div class="sub">圖像式自學課程 · 32 題 · 每個解釋都有快速索引</div>
+    <div class="sub">V4 挑戰版 · 基礎 + 挑戰淺／中／深 · 每個解釋都有快速索引</div>
   </div>
   <span id="topCode" class="code">M1-Q01</span>
 </header>
@@ -153,7 +153,7 @@ select,input{width:100%;border:1px solid #39434d;background:#20262c;color:#fff;b
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<script src="./course-data.js?v=3"></script>
+<script src="./course-data.js?v=4"></script>\n<script src="./challenge-data.js?v=4"></script>
 <script>
 const U={w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}};
 const C=window.CHESS_COURSE;
@@ -178,7 +178,8 @@ function updateProgress(){
  const q=C.questions[idx], mi=C.modules.findIndex(m=>m.id===q.module);
  els.moduleProgress.textContent="模組 "+(mi+1)+" / "+C.modules.length;
  els.statusbar.innerHTML=(completed.has(q.id)?"<span class='tag done'>✓ 已完成</span>":"<span class='tag'>尚未完成</span>")+
-   "<span class='tag'>"+(q.type==="move"?"棋盤走棋題":"選擇題")+"</span>";
+   "<span class='tag'>"+(q.type==="move"?"棋盤走棋題":"選擇題")+"</span>"+
+   (q.difficulty?"<span class='tag'>難度："+q.difficulty+"</span>":"");
 }
 function parseFenBoard(fen){
  const out={}, rows=fen.split(" ")[0].split("/");
@@ -325,6 +326,11 @@ document.getElementById("jumpBtn").onclick=()=>{
 };
 document.getElementById("jumpInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("jumpBtn").click()});
 let start=Number(localStorage.getItem("chessCourseLast")||0);
+const requested=new URLSearchParams(location.search).get("q");
+if(requested){
+  const ri=C.questions.findIndex(q=>q.id===requested.toUpperCase());
+  if(ri>=0)start=ri;
+}
 if(!Number.isFinite(start)||start<0||start>=C.questions.length)start=0;
 loadQuestion(start);
 </script>
