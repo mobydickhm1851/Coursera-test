@@ -85,7 +85,7 @@ select,input{width:100%;border:1px solid #39434d;background:#20262c;color:#fff;b
 <header>
   <div>
     <h1>Chess Coach</h1>
-    <div class="sub">V4 挑戰版 · 基礎 + 挑戰淺／中／深 · 每個解釋都有快速索引</div>
+    <div class="sub">V5 · 挑戰課程 + 難題診斷模式 · 每個局面都有快速索引</div>
   </div>
   <span id="topCode" class="code">M1-Q01</span>
 </header>
@@ -178,7 +178,7 @@ function updateProgress(){
  const q=C.questions[idx], mi=C.modules.findIndex(m=>m.id===q.module);
  els.moduleProgress.textContent="模組 "+(mi+1)+" / "+C.modules.length;
  els.statusbar.innerHTML=(completed.has(q.id)?"<span class='tag done'>✓ 已完成</span>":"<span class='tag'>尚未完成</span>")+
-   "<span class='tag'>"+(q.type==="move"?"棋盤走棋題":"選擇題")+"</span>"+
+   "<span class='tag'>"+(q.type==="diagnostic"?"診斷題":(q.type==="move"?"棋盤走棋題":"選擇題"))+"</span>"+
    (q.difficulty?"<span class='tag'>難度："+q.difficulty+"</span>":"");
 }
 function parseFenBoard(fen){
@@ -217,7 +217,7 @@ function renderBoard(){
 }
 function tapSquare(sq){
  const q=C.questions[idx];
- if(q.type!=="move") return;
+ if(q.type!=="move" && q.type!=="diagnostic") return;
  if(!game) return;
  if(!selected){
    const p=game.get(sq);
@@ -232,12 +232,19 @@ function tapSquare(sq){
  const from=selected;
  let m=game.move({from,to:sq,promotion:"q"});
  if(!m)return;
- const ok=(q.expected||[]).some(x=>x.from===from&&x.to===sq);
  selected=null;legal=[];lastMove={from,to:sq};
- if(ok){
-   markDone();showMoveResult(true,m);
+ if(q.type==="diagnostic"){
+   localStorage.setItem("chessDiagnostic:"+q.id, JSON.stringify({san:m.san,from,to:sq}));
+   els.result.classList.add("show");
+   els.result.innerHTML="<div class='explain'><div class='explain-top'><strong>已記錄你的答案："+m.san+"</strong>"+quick((q.alias||q.id)+"-TRY")+"</div>我先不告訴你對錯。請回到 ChatGPT 告訴我：<b>"+(q.alias||q.id)+"："+m.san+"</b>，再加一句你為什麼選它。</div>";
+   markDone();
  }else{
-   game.undo();lastMove=null;showMoveResult(false,m);
+   const ok=(q.expected||[]).some(x=>x.from===from&&x.to===sq);
+   if(ok){
+     markDone();showMoveResult(true,m);
+   }else{
+     game.undo();lastMove=null;showMoveResult(false,m);
+   }
  }
  renderBoard();
 }
@@ -294,7 +301,7 @@ function loadQuestion(newIdx){
  try{game=new Chess(q.fen)}catch(e){game=null}
  els.moduleName.textContent=m.title+"｜"+m.subtitle;
  els.title.textContent=q.title;els.prompt.textContent=q.prompt;els.qCode.textContent=q.id;els.topCode.textContent=q.id;
- els.instruction.textContent=q.type==="move"?"直接在棋盤上點棋子再點目標格作答。":"看圖回答即可；不需要把座標背起來。";
+ els.instruction.textContent=q.type==="diagnostic"?(q.note||"直接在棋盤走你認為最好的第一手；不會立即判分。"):(q.type==="move"?"直接在棋盤上點棋子再點目標格作答。":"看圖回答即可；不需要把座標背起來。");
  renderBoard();renderChoices();renderModules();renderSelect();updateProgress();saveProgress();
  window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -310,19 +317,33 @@ function renderSelect(){
  C.questions.forEach((q,i)=>{const o=document.createElement("option");o.value=i;o.textContent=q.id+" · "+q.title;if(i===idx)o.selected=true;els.questionSelect.appendChild(o)});
 }
 document.getElementById("hintBtn").onclick=()=>{
- const q=C.questions[idx],hint=q.hint||"先看棋盤上的關係，不要急著靠術語猜。";
+ const q=C.questions[idx];
+ if(q.type==="diagnostic"){
+   els.result.classList.add("show");
+   els.result.innerHTML="<div class='explain'>診斷題不提供提示；因為我要用你自然想到的候選著判斷弱點。</div>";
+   return;
+ }
+ const hint=q.hint||"先看棋盤上的關係，不要急著靠術語猜。";
  els.result.classList.add("show");els.result.innerHTML="<div class='explain'><div class='explain-top'><strong>提示</strong>"+quick(q.id+"-HINT")+"</div>"+hint+"</div>";
 };
 document.getElementById("resetBtn").onclick=()=>loadQuestion(idx);
-document.getElementById("answerBtn").onclick=revealAnswer;
+document.getElementById("answerBtn").onclick=()=>{
+ const q=C.questions[idx];
+ if(q.type==="diagnostic"){
+   els.result.classList.add("show");
+   els.result.innerHTML="<div class='explain'>診斷題不在頁面顯示答案。先走一手，再把答案帶回 ChatGPT。</div>";
+   return;
+ }
+ revealAnswer();
+};
 document.getElementById("prevBtn").onclick=()=>loadQuestion(idx-1);
 document.getElementById("nextBtn").onclick=()=>loadQuestion(idx+1);
 els.questionSelect.onchange=e=>loadQuestion(Number(e.target.value));
 document.getElementById("jumpBtn").onclick=()=>{
  const raw=document.getElementById("jumpInput").value.trim().toUpperCase();
  const base=raw.match(/M\d+-Q\d+/)?.[0];
- const i=C.questions.findIndex(q=>q.id===base);
- if(i>=0)loadQuestion(i); else alert("找不到這個索引。例：M2-Q03 或 M2-Q03-C");
+ let i=C.questions.findIndex(q=>q.id===base || (q.alias||"").toUpperCase()===raw);
+ if(i>=0)loadQuestion(i); else alert("找不到這個索引。例：D1、M12-Q01、M2-Q03-C");
 };
 document.getElementById("jumpInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("jumpBtn").click()});
 let start=Number(localStorage.getItem("chessCourseLast")||0);
