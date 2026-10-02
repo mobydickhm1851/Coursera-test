@@ -1,4 +1,6 @@
-/* Chess Coach V7 bundled course data. Single-file bundle to avoid partial-load races. */\n\nwindow.CHESS_COURSE = {
+/* Chess Coach V7 bundled course data. */
+
+window.CHESS_COURSE = {
   modules: [
     {id:"M1", title:"每一手怎麼想", subtitle:"先建立不容易 blunder 的固定流程"},
     {id:"M2", title:"兵型入門", subtitle:"全部用圖像理解，不先背術語"},
@@ -405,7 +407,9 @@
       ]
     }
   ]
-};\n\n
+};
+
+
 // Chess Coach V4 challenge extension
 window.CHESS_COURSE.modules.push(
   {id:"M9", title:"挑戰・淺", subtitle:"先算 1–2 層，不再只靠口訣"},
@@ -649,7 +653,9 @@ window.CHESS_COURSE.questions.push(
  prompt:"白方走。不要提示、不要看答案、不要用引擎。給自己最多 3 分鐘，只走你認為最強的一手。",
  note:"這題頁面不會告訴你對錯。走完後，把顯示的 D1 答案代碼與你的理由貼回 ChatGPT。"
 }
-);\n\n
+);
+
+
 (function(){
 const C=window.CHESS_COURSE;
 const old=C.questions.findIndex(q=>q.id==="M12-Q01");
