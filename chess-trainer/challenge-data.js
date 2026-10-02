@@ -90,7 +90,8 @@ window.CHESS_COURSE.questions.push(
  correct:"Qxf7#。關鍵不是皇后自己很強，而是 c4 的白象保護 f7，所以黑王不能 Kxf7。",
  common:[
   {code:"W1",title:"只看到皇后靠近王",text:"真正使將死成立的是棋子協同：皇后佔 f7，象 c4 保護 f7。"},
-  {code:"W2",title:"以為王可以吃任何貼身棋子",text:"王能吃棋，但目的格必須沒有被敵方棋子控制。"}
+  {code:"W2",title:"以為王可以吃任何貼身棋子",text:"王能吃棋，但目的格必須沒有被敵方棋子控制。"},
+  {code:"W3",title:"那 Bxf7+ 呢？",text:"Bxf7+ 也是將軍，而且黑王不能 Kxf7，因為 h5 的白后保護 f7；但它不是將死。黑王仍可走 Ke7。Qxf7# 的差別是皇后站在 f7 時同時控制 e7、d7 等逃生格，把黑王真正封死。"}
  ]
 },
 {
