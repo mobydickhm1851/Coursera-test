@@ -151,3 +151,139 @@ C.questions.push(
 }
 );
 })();
+
+(function(){
+const C=window.CHESS_COURSE;
+if(C.questions.some(q=>q.alias==="D4")) return;
+
+C.questions.push(
+{
+ id:"M12-Q04",alias:"D4",module:"M12",difficulty:"深",title:"D4｜兩步結束",
+ type:"diagnostic",
+ fen:"5r1k/6pp/4Q2N/8/8/8/8/K7 w - - 0 1",
+ intro:"白方走。找最強的一手，不要只因為看到將軍就立刻走。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手？",
+   expected:{from:"e6",to:"g8"},
+   after:[{from:"f8",to:"g8"}],
+   afterText:"黑車被迫吃后：...Rxg8。現在白方一手結束。",
+   success:"Qg8+！你主動把皇后送掉，目的不是換車，而是把黑車引到 g8，封死黑王唯一可能的逃生格。",
+   alternatives:[
+    {from:"h6",to:"f7",title:"Nf7+：先看到自然將軍",tag:"第一個將軍偏誤",pros:"你有先掃 check。",cons:"黑方仍有 ...Rxf7 或 ...Kg8；這不是強制結束。",coach:"找到一個 check 後，不要停。至少再比較一個 forcing candidate。"}
+   ],
+   other:{title:"其他走法",tag:"將殺圖像",pros:"你有在尋找主動著。",cons:"如果沒看到 Qg8+，通常是只盯棋子分值，沒看到『把自己的后送掉來堵逃生格』。",coach:"攻王時把自己的棋也當作可以用來改變幾何的工具。"}
+  },
+  {
+   prompt:"第 2 手：黑車已在 g8。白方一手將死。",
+   expected:{from:"h6",to:"f7"},
+   success:"Nf7#。黑王被自己的 g7、h7 兵和 g8 車完全悶住。這就是典型 smothered mate 結構。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"收尾檢查",pros:"你已找到皇后犧牲。",cons:"若沒看到 Nf7#，代表最後一步沒有逐格檢查黑王逃生格。",coach:"每次將軍前都確認：能逃？能吃？能擋？能由別子吃掉將軍子？"}
+  }
+ ],
+ report:{
+  strength:"這題主要測你是否能接受『皇后可以只是引離工具』，而不是永遠要保留最高分值棋子。",
+  focus:"若你先走 Nf7+，代表 forcing moves 有掃到，但比較候選著的深度不足。",
+  rule:"不要選第一個將軍；比較哪個將軍最能限制對手的唯一回應。",
+  line:"Qg8+! Rxg8 → Nf7#"
+ }
+},
+{
+ id:"M12-Q05",alias:"D5",module:"M12",difficulty:"深",title:"D5｜先把防守者拉走",
+ type:"diagnostic",
+ fen:"3qr1k1/5ppp/4Q3/8/8/8/8/K3R3 w - - 0 1",
+ intro:"白方走。局面看起來像交換，但其實有強制結束。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手？",
+   expected:{from:"e6",to:"e8"},
+   after:[{from:"d8",to:"e8"}],
+   afterText:"黑后被迫 Qxe8。現在白方一手結束。",
+   success:"Qxe8+！重點不是贏車，而是強迫黑后離開 d8、站到 e8，成為最後一手的目標。",
+   alternatives:[
+    {from:"e6",to:"f7",title:"Qxf7+：吃兵將軍",tag:"局部貪兵",pros:"是將軍，也拿到一兵。",cons:"黑王仍有 Kh8 或 Kxf7；你錯過直接強制將殺。",coach:"若有將軍，優先比較能否『迫使唯一回應』，不要先看拿多少 material。"}
+   ],
+   other:{title:"其他走法",tag:"引離",pros:"你有在找戰術。",cons:"這題的核心是把黑后引到 e8，再讓白車收尾。",coach:"問：哪一顆黑棋正在阻擋我的終結線？我能不能用 check 把它拉到指定位置？"}
+  },
+  {
+   prompt:"第 2 手：黑后已在 e8。白方一手將死。",
+   expected:{from:"e1",to:"e8"},
+   success:"Rxe8#。第一手的皇后交換其實是在替車清路並固定黑后的落點。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"轉換",pros:"你已完成第一步引離。",cons:"若此時沒看到 Rxe8#，表示你可能把第一手當作獨立交換，沒有預先看『交換後誰接手』。",coach:"每次主動交換前先問：交換完成後，我下一顆最強的棋子是哪一顆？"}
+  }
+ ],
+ report:{
+  strength:"這題測的是引離 defender 與 move sequence。",
+  focus:"如果只看到 Qxf7+，你較容易被立即 material gain 吸引。",
+  rule:"強制線常是『先把防守者移位，再讓後方棋子接手』。",
+  line:"Qxe8+! Qxe8 → Rxe8#"
+ }
+},
+{
+ id:"M12-Q06",alias:"D6",module:"M12",difficulty:"深",title:"D6｜皇后已經掉了，還有沒有更大的事？",
+ type:"diagnostic",
+ fen:"r2qkbnr/ppp2ppp/2np4/4N3/2B1P3/2N5/PPPP1PPP/R1BbK2R w KQkq - 0 6",
+ intro:"白方皇后已經被黑象吃掉。白方走。不要先想怎麼把 material 補回來。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手？",
+   expected:{from:"c4",to:"f7"},
+   after:[{from:"e8",to:"e7"}],
+   afterText:"黑王只有一個合法回應：...Ke7。現在找最後一手。",
+   success:"Bxf7+！雖然白后已掉，但黑王的位置比物質更重要。這手把王逼到 e7，進入最後的 mating net。",
+   alternatives:[
+    {from:"e5",to:"f7",title:"Nxf7：想先拿回 material",tag:"物質補償偏誤",pros:"你注意到 f7 是弱點。",cons:"它甚至不是 check，黑方有大量時間整理局面。",coach:"當對手王仍在中心，先算 checks；不要因為剛掉后就急著『賺回來』。"}
+   ],
+   other:{title:"其他走法",tag:"心理帳本",pros:"你可能在尋找補償。",cons:"掉后會讓人本能想追回 material，但棋局只看最後結果；forced mate 比后更值錢。",coach:"重大 material 變化後，重新從零掃一次 checks，而不是沿用原本的物質評估。"}
+  },
+  {
+   prompt:"第 2 手：黑王在 e7。白方一手將死。",
+   expected:{from:"c3",to:"d5"},
+   success:"Nd5#。兩匹馬與 f7 的象協同封住黑王。這就是 Légal mate 的經典收尾。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"棋子協同",pros:"你看到黑王仍很危險。",cons:"如果找不到 Nd5#，通常是只盯著剛剛走到 f7 的象，沒有重新掃描另一匹馬。",coach:"每當王被逼到新格，都重新掃所有己方棋子，不只追蹤上一手那顆。"}
+  }
+ ],
+ report:{
+  strength:"這題測你是否能在巨大 material 損失後仍保持戰術客觀性。",
+  focus:"若你急著吃子補回來，容易出現 sunk-cost / material fixation。",
+  rule:"棋子分值只是中間變數；forced mate 永遠優先。",
+  line:"Bxf7+! Ke7 → Nd5#"
+ }
+},
+{
+ id:"M12-Q07",alias:"D7",module:"M12",difficulty:"深",title:"D7｜Morphy 終局",
+ type:"diagnostic",
+ fen:"4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 16",
+ intro:"白方走。這是歷史上非常有名的一個位置。不要去猜棋手名字，只看盤面。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手？",
+   expected:{from:"b3",to:"b8"},
+   after:[{from:"d7",to:"b8"}],
+   afterText:"黑馬被迫 Nxb8。現在白方一手結束。",
+   success:"Qb8+！這是純粹的皇后犧牲。黑方只有 Nxb8 一個合法回應，白方因此把第 8 排完全清乾淨。",
+   alternatives:[
+    {from:"b3",to:"e6",title:"Qxe6+：直接吃掉黑后",tag:"贏后偏誤",pros:"你看到可以贏黑后，而且還帶將軍。",cons:"這很誘人，但局面其實有立即將死；贏后比將死差。",coach:"看到能贏后時也要多問一次：有沒有 forced mate？"}
+   ],
+   other:{title:"其他走法",tag:"強制回應",pros:"你可能找到其他主動手。",cons:"Qb8+ 的價值在於黑方只有唯一回應。越能縮小對手選擇，計算越可靠。",coach:"候選著排序時，特別標出『只有一個合法回應』的手。"}
+  },
+  {
+   prompt:"第 2 手：黑馬已在 b8。白方一手將死。",
+   expected:{from:"d1",to:"d8"},
+   success:"Rd8#。皇后犧牲的真正目的，是把 d7 的馬引離並清空 d-file / 第 8 排。這是 Morphy Opera Game 的著名收尾。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"清線",pros:"你成功找到第一手皇后犧牲。",cons:"若此處沒看到 Rd8#，表示第一手的『目的』還沒有連到後續 rook line。",coach:"犧牲前要能回答：犧牲完後，哪條線被打開？哪顆棋子因此突然變強？"}
+  }
+ ],
+ report:{
+  strength:"這題測 queen sacrifice、唯一回應與 line clearance。",
+  focus:"如果你選 Qxe6+，代表你非常會看 material gain，但可能在『已經可以將死』時過早兌現。",
+  rule:"當一手棋能把對手回應壓縮到唯一一手，通常值得優先深算。",
+  line:"Qb8+! Nxb8 → Rd8#"
+ }
+}
+);
+})();
