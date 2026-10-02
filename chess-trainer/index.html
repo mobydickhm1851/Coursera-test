@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111315">
+<title>Chess Coach</title>
+<style>
+:root{
+  --bg:#111315;--panel:#1a1d20;--panel2:#22262a;--text:#f5f7f8;--muted:#aab1b7;
+  --light:#f0d9b5;--dark:#b58863;--accent:#79b8ff;--ok:#7bd88f;--warn:#ffd166;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.app{max-width:760px;margin:0 auto;padding:12px 12px 32px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 10px}
+h1{font-size:21px;margin:0}.tiny{font-size:12px;color:var(--muted)}
+.board-shell{width:100%;max-width:720px;margin:auto}
+.board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:0 12px 34px rgba(0,0,0,.34);touch-action:manipulation}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.light{background:var(--light)}.dark{background:var(--dark)}
+.piece{font-family:"Arial Unicode MS","Apple Symbols","Noto Sans Symbols 2",serif;font-size:clamp(31px,10vw,72px);line-height:1;filter:drop-shadow(0 1px 0 rgba(255,255,255,.18))}
+.coord{position:absolute;font-weight:800;font-size:10px;opacity:.72;pointer-events:none}
+.rank{left:3px;top:2px}.file{right:3px;bottom:2px}
+.sel{outline:5px solid rgba(255,230,84,.95);outline-offset:-5px;z-index:2}
+.last{box-shadow:inset 0 0 0 999px rgba(255,235,80,.18)}
+.dot:after{content:"";width:25%;height:25%;border-radius:50%;background:rgba(30,40,20,.36);position:absolute}
+.cap:after{content:"";position:absolute;inset:7%;border:5px solid rgba(30,40,20,.34);border-radius:50%}
+.check{box-shadow:inset 0 0 0 999px rgba(215,60,60,.45)}
+.toolbar,.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+button,select{font:inherit;border:0;border-radius:10px;padding:10px 12px}
+button{background:#30353a;color:white}button.primary{background:var(--accent);color:#08121b;font-weight:800}
+button:active{transform:translateY(1px)}select{background:#22272b;color:white;flex:1;min-width:180px}
+.card{background:var(--panel);border:1px solid #30363b;border-radius:12px;padding:13px;margin-top:10px}
+.card h2{font-size:16px;margin:0 0 6px}.muted{color:var(--muted);line-height:1.5}
+.status{font-size:15px;line-height:1.5}.status strong{color:white}
+.moves{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#d5d9dc;white-space:pre-wrap;line-height:1.55;min-height:24px}
+.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#2a3035;color:#dce2e6;font-size:12px;margin-right:6px}
+.good{color:var(--ok)}.warn{color:var(--warn)}
+.promo{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.promo.show{display:flex}.promo-box{background:#202428;border:1px solid #3b4248;border-radius:14px;padding:16px;min-width:280px;text-align:center}
+.promo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.promo-grid button{font-size:36px;padding:12px 6px}
+.lesson-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+@media(max-width:420px){.app{padding-left:8px;padding-right:8px}.card{padding:11px}.toolbar button{flex:1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Chess Coach</h1>
+      <div class="tiny">看棋盤學，不用背座標</div>
+    </div>
+    <span class="pill" id="turnPill">白方走</span>
+  </header>
+
+  <div class="board-shell"><div id="board" class="board"></div></div>
+
+  <div class="toolbar">
+    <button id="undo">↩ 上一步</button>
+    <button id="reset">重設</button>
+    <button id="flip">⇅ 翻轉</button>
+    <button id="hint" class="primary">提示</button>
+  </div>
+
+  <div class="card">
+    <div class="lesson-title">
+      <h2>訓練模式</h2>
+      <select id="lesson">
+        <option value="free">自由練習</option>
+        <option value="opening">開局：義大利開局</option>
+        <option value="tactic">戰術：騎士雙攻</option>
+        <option value="strategy">策略：壞象</option>
+        <option value="ending">殘局：王兵殘局</option>
+      </select>
+    </div>
+    <p id="task" class="muted">點一顆棋子，棋盤會直接顯示所有合法走法。</p>
+    <div id="feedback" class="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>你剛剛做了什麼</h2>
+    <div id="action" class="status muted">尚未走棋。</div>
+  </div>
+
+  <div class="card">
+    <h2>棋譜</h2>
+    <div id="history" class="moves">—</div>
+  </div>
+</div>
+
+<div id="promo" class="promo">
+  <div class="promo-box">
+    <strong>升變成哪一顆？</strong>
+    <div class="promo-grid" id="promoGrid"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+const U={w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}};
+
+const lessons={
+  free:{
+    fen:null,
+    task:"自由練習：點棋子後，綠點就是合法走法。每走一步，我會同時告訴你「從哪格到哪格」以及標準棋譜。",
+    hint:"先養成習慣：每一手之前先看對手的將軍、吃子、威脅。"
+  },
+  opening:{
+    fen:"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+    task:"黑方走。局面來自 1.e4 e5 2.Nf3 Nc6 3.Bc4。請先找一手自然的發展棋，同時注意 e5 兵。",
+    hint:"想想哪一隻還沒發展的棋子，可以攻擊白方 e4 兵並幫助王車易位。",
+    judge:(m)=> m.san.startsWith("Nf6") ? "很好：...Nf6 發展騎士、攻擊 e4，並準備王車易位。這是非常自然的開局思路。" :
+      m.san.startsWith("Bc5") ? "可以：...Bc5 也是很自然的發展著。比較一下 ...Nf6：它還會直接攻擊 e4。" :
+      "這步可能合法，但先問自己：它是否同時完成『發展、控制中心、王的安全』？"
+  },
+  tactic:{
+    fen:"8/4k3/3q4/8/7N/8/8/4K3 w - - 0 1",
+    task:"白方走。找一手騎士棋，同時攻擊黑王和黑后。直接在棋盤上走。",
+    hint:"騎士從 h4 能跳到哪些格？找一格能同時攻擊 e7 與 d6。",
+    judge:(m)=> m.from==="h4" && m.to==="f5" ? "正確：Nf5+！騎士同時將軍 e7 的王並攻擊 d6 的后，這就是 fork（雙攻）。" :
+      "再看一次騎士的 L 形攻擊範圍。目標是同時碰到黑王與黑后。"
+  },
+  strategy:{
+    fen:"4k3/8/8/8/3P4/4P3/8/2B1K3 w - - 0 1",
+    task:"這題不是找唯一好棋。觀察 c1 的白格象與自己的 d4、e3 兵：這隻象現在活動性如何？你可以點象看它能去哪。",
+    hint:"判斷 Bishop 好壞時，看自己的兵是不是站在和 Bishop 相同顏色的格子上，並限制它的斜線。",
+    judge:()=> "重點不是這一手。c1 象受到自己同色兵結構限制，活動範圍小，因此目前偏向『壞象』。"
+  },
+  ending:{
+    fen:"8/4k3/8/4K3/4P3/8/8/8 w - - 0 1",
+    task:"白方走。比較 Kf5、Kd5、e5。直接走你第一直覺的一手，再觀察王與兵的相對位置。",
+    hint:"王兵殘局的核心不是急著推兵，而是讓自己的王取得關鍵格與 opposition（對王）。",
+    judge:(m)=> (m.san==="Kf5"||m.san==="Kd5") ? "好，先用王取得空間是正確方向。接下來要根據黑王回應判斷 opposition。" :
+      m.san==="e5" ? "e5 很直覺，但王兵殘局常常『王先走』更重要。試著比較 Kf5 / Kd5 後黑王能去哪。" :
+      "先把焦點放在王的位置：王通常比兵更需要先前進。"
+  }
+};
+
+let game=new Chess();
+let orientation="w";
+let selected=null;
+let legal=[];
+let lastMove=null;
+let promotionMove=null;
+
+const board=document.getElementById("board");
+const task=document.getElementById("task");
+const feedback=document.getElementById("feedback");
+const action=document.getElementById("action");
+const historyEl=document.getElementById("history");
+const turnPill=document.getElementById("turnPill");
+
+function files(){return orientation==="w"?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"]}
+function ranks(){return orientation==="w"?["8","7","6","5","4","3","2","1"]:["1","2","3","4","5","6","7","8"]}
+
+function render(){
+  board.innerHTML="";
+  const fs=files(), rs=ranks();
+  rs.forEach((r,ri)=>fs.forEach((f,fi)=>{
+    const sq=f+r, piece=game.get(sq);
+    const d=document.createElement("div");
+    d.className="sq "+(((ri+fi)%2===0)?"light":"dark");
+    d.dataset.sq=sq;
+    if(selected===sq)d.classList.add("sel");
+    if(lastMove&&(lastMove.from===sq||lastMove.to===sq))d.classList.add("last");
+    const lm=legal.find(x=>x.to===sq);
+    if(lm)d.classList.add(game.get(sq)?"cap":"dot");
+    if(piece&&piece.type==="k"&&piece.color===game.turn()&&game.in_check())d.classList.add("check");
+
+    if(piece){
+      const p=document.createElement("span"); p.className="piece"; p.textContent=U[piece.color][piece.type]; d.appendChild(p);
+    }
+    const rr=document.createElement("span");rr.className="coord rank";rr.textContent=fi===0?r:"";d.appendChild(rr);
+    const ff=document.createElement("span");ff.className="coord file";ff.textContent=ri===7?f:"";d.appendChild(ff);
+    d.onclick=()=>tap(sq);
+    board.appendChild(d);
+  }));
+  turnPill.textContent=game.turn()==="w"?"白方走":"黑方走";
+  const h=game.history();
+  if(!h.length) historyEl.textContent="—";
+  else{
+    let out=[];
+    for(let i=0;i<h.length;i+=2) out.push((i/2+1)+". "+h[i]+(h[i+1]?" "+h[i+1]:""));
+    historyEl.textContent=out.join("\n");
+  }
+}
+
+function selectSquare(sq){
+  const p=game.get(sq);
+  if(!p||p.color!==game.turn()){selected=null;legal=[];render();return}
+  selected=sq;
+  legal=game.moves({square:sq,verbose:true});
+  action.innerHTML="你選了 <strong>"+U[p.color][p.type]+" "+sq+"</strong>。棋盤上的綠點就是合法走法。";
+  render();
+}
+
+function tap(sq){
+  if(!selected){selectSquare(sq);return}
+  if(sq===selected){selected=null;legal=[];render();return}
+  const own=game.get(sq);
+  if(own&&own.color===game.turn()){selectSquare(sq);return}
+  const candidate=legal.find(m=>m.to===sq);
+  if(!candidate){action.innerHTML="<span class='warn'>那一格不是這顆棋子的合法走法。</span>";return}
+
+  if(candidate.flags.includes("p") || (game.get(selected)?.type==="p" && (sq[1]==="8"||sq[1]==="1"))){
+    promotionMove={from:selected,to:sq};
+    showPromotion();
+    return;
+  }
+  doMove({from:selected,to:sq});
+}
+
+function doMove(obj){
+  const before=selected||obj.from;
+  const m=game.move(obj);
+  if(!m)return;
+  lastMove={from:m.from,to:m.to};
+  selected=null;legal=[];
+  action.innerHTML="你走了 <strong>"+m.from+" → "+m.to+"</strong>，標準棋譜是 <strong>"+m.san+"</strong>。";
+  const L=lessons[document.getElementById("lesson").value];
+  feedback.textContent=L.judge?L.judge(m):"";
+  if(game.in_checkmate()) feedback.innerHTML="<span class='good'>將死！</span>";
+  else if(game.in_draw()) feedback.textContent="和棋。";
+  else if(game.in_check()) feedback.innerHTML+=(feedback.innerHTML?" ":"")+"<span class='warn'>現在是將軍。</span>";
+  render();
+}
+
+function showPromotion(){
+  const modal=document.getElementById("promo"),grid=document.getElementById("promoGrid");
+  grid.innerHTML="";
+  ["q","r","b","n"].forEach(t=>{
+    const b=document.createElement("button");
+    b.textContent=U[game.turn()][t];
+    b.onclick=()=>{modal.classList.remove("show");doMove({...promotionMove,promotion:t});promotionMove=null};
+    grid.appendChild(b);
+  });
+  modal.classList.add("show");
+}
+
+function loadLesson(){
+  const key=document.getElementById("lesson").value, L=lessons[key];
+  game=new Chess();
+  if(L.fen) game.load(L.fen);
+  selected=null;legal=[];lastMove=null;
+  task.textContent=L.task;
+  feedback.textContent="";
+  action.textContent="尚未走棋。";
+  render();
+}
+document.getElementById("lesson").onchange=loadLesson;
+document.getElementById("reset").onclick=loadLesson;
+document.getElementById("flip").onclick=()=>{orientation=orientation==="w"?"b":"w";render()};
+document.getElementById("undo").onclick=()=>{
+  const u=game.undo();
+  if(u){lastMove=null;selected=null;legal=[];feedback.textContent="已退回上一步。";action.textContent="你可以重新思考這一步。";render()}
+};
+document.getElementById("hint").onclick=()=>{
+  const L=lessons[document.getElementById("lesson").value];
+  feedback.innerHTML="<span class='warn'>提示：</span> "+L.hint;
+};
+loadLesson();
+</script>
+</body>
+</html>
