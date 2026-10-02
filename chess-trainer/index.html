@@ -85,7 +85,7 @@ details{border-radius:10px} summary{cursor:pointer} .explain.warn{border-color:#
 <header>
   <div>
     <h1>Chess Coach</h1>
-    <div class="sub">V6 · 分支式實戰教練 · 直接下棋、追問、診斷、完整詳解</div>
+    <div class="sub">V7 · 分支式實戰教練 · 穩定版</div>
   </div>
   <span id="topCode" class="code">M1-Q01</span>
 </header>
@@ -152,8 +152,8 @@ details{border-radius:10px} summary{cursor:pointer} .explain.warn{border-color:#
 </section>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<script src="./course-data.js?v=6"></script>\n<script src="./challenge-data.js?v=6"></script>\n<script src="./diagnostic-data.js?v=6"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js?v=7"></script>
+<script src="./all-data.js?v=7"></script>
 <script>
 const U={w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}};
 const C=window.CHESS_COURSE;
@@ -324,17 +324,25 @@ function loadQuestion(newIdx){
  const q=C.questions[idx],m=moduleOf(q);
  selected=null;legal=[];lastMove=null;revealed=false;pendingPromotion=null;diagStage=0;diagMistakes=[];
  els.result.classList.remove("show");els.result.innerHTML="";
- try{game=new Chess(q.fen)}catch(e){game=null}
- els.moduleName.textContent=m.title+"｜"+m.subtitle;
- els.title.textContent=q.title;els.qCode.textContent=q.alias||q.id;els.topCode.textContent=q.alias||q.id;
- if(q.type==="diagnostic"){
-   setDiagnosticStageText(q);
- }else{
-   els.prompt.textContent=q.prompt;
-   els.instruction.textContent=q.type==="move"?"直接在棋盤上點棋子再點目標格作答。":"看圖回答即可；不需要把座標背起來。";
+ try{
+   game=(typeof Chess!=="undefined")?new Chess(q.fen):null;
+ }catch(e){
+   game=null;
  }
- renderBoard();renderChoices();renderModules();renderSelect();updateProgress();
+ els.moduleName.textContent=(m?m.title:q.module)+"｜"+(m?m.subtitle:"");
+ els.title.textContent=q.title;els.qCode.textContent=q.alias||q.id;els.topCode.textContent=q.alias||q.id;
+ els.prompt.textContent=q.prompt||q.intro||"";
+ els.instruction.textContent=q.type==="move"?"直接在棋盤上點棋子再點目標格作答。":"看圖作答。";
+ renderBoard();
+ renderChoices();
+ renderModules();
+ renderSelect();
+ updateProgress();
  if(q.type==="diagnostic")setDiagnosticStageText(q);
+ if(typeof Chess==="undefined"){
+   els.result.classList.add("show");
+   els.result.innerHTML="<div class='explain bad'><strong>棋盤已顯示，但走棋引擎尚未載入。</strong><br>請重新整理一次頁面；棋盤本身不會再因此消失。</div>";
+ }
  saveProgress();
  window.scrollTo({top:0,behavior:"smooth"});
 }
