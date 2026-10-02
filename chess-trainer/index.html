@@ -1,401 +1,2869 @@
 <!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1014">
-<title>Chess Coach Course</title>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1014"><title>Chess Coach V8</title>
 <style>
-:root{
-  --bg:#0d1014;--panel:#171c22;--panel2:#20262d;--border:#303943;
-  --text:#f5f7f9;--muted:#aab3bd;--light:#f4e1bd;--dark:#8d6038;
-  --white:#fffdf7;--black:#171a1f;--blue:#78b8ff;--green:#79d98c;
-  --red:#ff7d7d;--yellow:#ffd76d;
-}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
-button,input,select{font:inherit}
-.app{max-width:820px;margin:0 auto;padding:10px 10px 40px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:6px 2px 10px}
-h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
-.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#2a3139;border:1px solid #3a4652;padding:3px 7px;border-radius:7px;font-size:12px;white-space:nowrap}
-.progress-card{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:11px;margin-bottom:10px}
-.progress-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
-.progress{height:8px;border-radius:999px;background:#252d35;overflow:hidden;margin-top:8px}
-.progress>div{height:100%;background:var(--green);width:0}
-.module-row{display:flex;gap:6px;overflow:auto;padding:4px 1px 9px;scrollbar-width:none}
-.module-row::-webkit-scrollbar{display:none}
-.module-btn{border:1px solid #333e49;background:#1d2329;color:#dce3e9;border-radius:999px;padding:8px 11px;white-space:nowrap}
-.module-btn.active{background:#dbeaff;color:#0e1720;border-color:#dbeaff;font-weight:800}
-.nav-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-select,input{width:100%;border:1px solid #39434d;background:#20262c;color:#fff;border-radius:10px;padding:11px}
-.board{
- width:100%;aspect-ratio:1;display:grid;
- grid-template-columns:repeat(8,minmax(0,1fr));
- grid-template-rows:repeat(8,minmax(0,1fr));
- overflow:hidden;border-radius:14px;background:#000;
- box-shadow:0 14px 36px rgba(0,0,0,.38);
- border:1px solid rgba(255,255,255,.06);
-}
-.sq{position:relative;min-width:0;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-.light{background:var(--light)} .dark{background:var(--dark)}
-.piece{font-family:"Arial Unicode MS","Apple Symbols","Noto Sans Symbols 2",serif;font-size:clamp(34px,9.2vw,72px);line-height:1;pointer-events:none}
-.piece.w{color:var(--white);text-shadow:0 1px 0 #000,0 0 2px #000,0 0 6px rgba(0,0,0,.45)}
-.piece.b{color:var(--black);text-shadow:0 1px 0 rgba(255,255,255,.2),0 0 1px rgba(255,255,255,.2)}
-.coord{position:absolute;font-size:10px;font-weight:900;color:rgba(0,0,0,.72);pointer-events:none}
-.rank{left:3px;top:2px}.file{right:3px;bottom:2px}
-.sel{outline:5px solid #ffe85c;outline-offset:-5px;z-index:2}
-.dot:after{content:"";position:absolute;width:25%;height:25%;border-radius:50%;background:rgba(21,32,17,.46)}
-.cap:after{content:"";position:absolute;inset:7%;border:5px solid rgba(21,32,17,.42);border-radius:50%}
-.last{box-shadow:inset 0 0 0 999px rgba(255,231,76,.18)}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px;margin-top:10px}
-.qhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.qhead h2{font-size:19px;margin:0}.module-name{color:var(--blue);font-size:12px;font-weight:800;margin-bottom:4px}
-.prompt{font-size:17px;line-height:1.55;margin:10px 0 5px}
-.note{color:var(--muted);font-size:13px;line-height:1.5}
-.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
-.btn{border:0;border-radius:11px;background:#2a3138;color:#fff;padding:12px 8px;font-weight:750}
-.btn.primary{background:var(--blue);color:#07131f}.btn.good{background:#245f36}.btn.warn{background:#57471d}
-.choices{display:grid;gap:8px;margin-top:12px}
-.choice{text-align:left;border:1px solid #3a444f;background:#232a31;color:#f4f6f8;border-radius:12px;padding:12px;line-height:1.45}
-.choice.correct{border-color:#438a58;background:#1c3b27}.choice.wrong{border-color:#924b4b;background:#3a2224}
-.result{display:none}.result.show{display:block}
-.explain{background:#11161b;border:1px solid #28313a;border-radius:11px;padding:11px;margin-top:8px;line-height:1.5}
-.explain.good{border-color:#356b45}.explain.bad{border-color:#784043}
-.explain-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:5px}
-.quick{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#c9d8e8;font-size:12px}
-.common{margin-top:10px}.common h3{font-size:14px;margin:0 0 6px}
-.footer-nav{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.jump{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
-.jump button{padding:0 14px}
-.glossary details{border-top:1px solid #2e3740;padding:9px 0}.glossary details:first-child{border-top:0}.glossary summary{cursor:pointer;font-weight:750}.glossary p{color:var(--muted);line-height:1.5;margin:7px 0 0}
-.statusbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tag{font-size:12px;background:#252c33;padding:5px 8px;border-radius:999px;color:#d7dee4}
-.done{background:#1e4d2d;color:#c9f5d2}
-@media(max-width:520px){
- .app{padding-left:8px;padding-right:8px}
- .nav-grid{grid-template-columns:1fr}
- .actions{grid-template-columns:1fr 1fr 1fr}
- .btn{font-size:14px;padding:12px 5px}
- .prompt{font-size:16px}
-}
-details{border-radius:10px} summary{cursor:pointer} .explain.warn{border-color:#7a6424}\n</style>
-</head>
-<body>
-<div class="app">
-<header>
-  <div>
-    <h1>Chess Coach</h1>
-    <div class="sub">V7 · 分支式實戰教練 · 穩定版</div>
-  </div>
-  <span id="topCode" class="code">M1-Q01</span>
-</header>
-
-<div class="progress-card">
-  <div class="progress-top">
-    <span id="progressText">已完成 0 / 32</span>
-    <span id="moduleProgress">模組 1 / 8</span>
-  </div>
-  <div class="progress"><div id="progressFill"></div></div>
-</div>
-
-<div id="moduleRow" class="module-row"></div>
-
-<div class="nav-grid">
-  <select id="questionSelect"></select>
-  <div class="jump">
-    <input id="jumpInput" placeholder="輸入快速索引，例如 M2-Q03">
-    <button id="jumpBtn" class="btn">前往</button>
-  </div>
-</div>
-
+:root{--bg:#0d1014;--panel:#171c22;--border:#303943;--text:#f5f7f9;--muted:#aab3bd;--light:#f2ddb8;--dark:#91623c;--blue:#78b8ff;--green:#70d487;--red:#ff8181}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+button,input,select{font:inherit}.app{max-width:760px;margin:auto;padding:10px 9px 40px}
+header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin:6px 2px 10px}h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.quick,.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#29313a;border:1px solid #3b4753;padding:3px 7px;border-radius:7px;font-size:12px;white-space:nowrap}
+.progressCard,.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px;margin-top:10px}
+.prog{height:7px;background:#242c34;border-radius:99px;overflow:hidden;margin-top:7px}.prog>div{height:100%;background:var(--green);width:0}
+.modules{display:flex;gap:6px;overflow:auto;padding:9px 0;scrollbar-width:none}.pill{border:1px solid #35404a;background:#1d242b;color:#e5e9ed;border-radius:999px;padding:8px 10px;white-space:nowrap}.pill.active{background:#dcecff;color:#0c1620;font-weight:800}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}select,input{width:100%;padding:11px;border-radius:10px;border:1px solid #39434d;background:#20262c;color:#fff}
+.jump{display:grid;grid-template-columns:1fr auto;gap:7px}.btn{border:0;border-radius:11px;background:#2a323a;color:#fff;padding:12px 9px;font-weight:750}.btn.primary{background:var(--blue);color:#07131f}
+.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));border-radius:14px;overflow:hidden;border:1px solid #222;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.sq{position:relative;min-width:0;min-height:0;border:0;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.light{background:var(--light)}.dark{background:var(--dark)}
+.piece{font-family:"Arial Unicode MS","Apple Symbols","Noto Sans Symbols 2",serif;font-size:clamp(34px,9vw,70px);line-height:1;pointer-events:none}.piece.w{color:#fffdf7;text-shadow:0 1px 0 #000,0 0 3px #000}.piece.b{color:#16191d;text-shadow:0 1px 0 rgba(255,255,255,.2)}
+.coord{position:absolute;font-size:10px;font-weight:900;color:rgba(0,0,0,.68)}.rank{left:3px;top:2px}.file{right:3px;bottom:2px}.sel{outline:5px solid #ffe65b;outline-offset:-5px;z-index:2}.last{box-shadow:inset 0 0 0 999px rgba(255,234,72,.18)}
+.dot:after{content:"";position:absolute;width:24%;height:24%;border-radius:50%;background:rgba(20,30,18,.45)}.cap:after{content:"";position:absolute;inset:8%;border:5px solid rgba(20,30,18,.42);border-radius:50%}
+.qtop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.qtop h2{font-size:19px;margin:0}.prompt{font-size:17px;line-height:1.5;margin-top:10px}.status{font-size:13px;color:var(--muted);margin-top:6px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.choices{display:grid;gap:8px;margin-top:10px}.choice{text-align:left;border:1px solid #3b4651;background:#232a31;color:#fff;border-radius:11px;padding:12px}.choice.correct{background:#1b4128;border-color:#4d9b61}.choice.wrong{background:#402325;border-color:#9c5151}
+.feedback{display:none}.feedback.show{display:block;margin-top:10px}.box,.mini{background:#11161b;border:1px solid #2b353f;border-radius:11px;padding:11px;margin-top:8px;line-height:1.5}.box.good,.mini.good{border-color:#3f7d4f}.box.bad{border-color:#8d4949}.box.auto{border-color:#4c6f91}.box.solution{border-color:#6d5f32}.row{display:flex;justify-content:space-between;gap:8px}.thinking{margin-top:8px;color:#ffd76d;font-weight:800}
+details{margin-top:8px;border:1px solid #313a44;border-radius:10px;padding:8px}summary{cursor:pointer}.nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.promo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.promo button{padding:10px 3px;border:0;border-radius:9px;background:#2a323a;color:#fff}
+@media(max-width:520px){.tools{grid-template-columns:1fr}.prompt{font-size:16px}.actions .btn{font-size:13px;padding:12px 4px}}
+</style></head><body><div class="app">
+<header><div><h1>Chess Coach V8</h1><div class="sub">單檔穩定版 · 你走白方，黑方自動回應</div></div><span id="code" class="code"></span></header>
+<div class="progressCard"><div id="progressText">完成 0 / 0</div><div class="prog"><div id="progress"></div></div></div>
+<div id="modules" class="modules"></div>
+<div class="tools"><select id="qsel"></select><div class="jump"><input id="jump" placeholder="D1 / D2 / D3 / M10-Q01"><button id="jumpBtn" class="btn">前往</button></div></div>
 <div id="board" class="board"></div>
-
-<section class="card">
-  <div class="qhead">
-    <div>
-      <div id="moduleName" class="module-name"></div>
-      <h2 id="title"></h2>
-    </div>
-    <span id="qCode" class="code"></span>
-  </div>
-  <div id="prompt" class="prompt"></div>
-  <div id="instruction" class="note"></div>
-  <div id="statusbar" class="statusbar"></div>
-
-  <div id="choices" class="choices"></div>
-
-  <div class="actions">
-    <button id="hintBtn" class="btn warn">提示</button>
-    <button id="resetBtn" class="btn">重設本題</button>
-    <button id="answerBtn" class="btn primary">顯示答案</button>
-  </div>
-
-  <div id="result" class="result"></div>
-
-  <div class="footer-nav">
-    <button id="prevBtn" class="btn">← 上一題</button>
-    <button id="nextBtn" class="btn primary">下一題 →</button>
-  </div>
-</section>
-
-<section class="card glossary">
-  <h2 style="font-size:16px;margin:0 0 6px">白話術語速查</h2>
-  <div class="note">不用先背。遇到題目再回來看。</div>
-  <details><summary>Fork / 雙攻</summary><p>一顆棋同時攻擊兩個目標，讓對手通常只能救一個。</p></details>
-  <details><summary>Pin / 牽制</summary><p>前面的棋子不敢動，因為一動就會露出後面更重要的棋子，常見是王。</p></details>
-  <details><summary>Skewer / 串擊</summary><p>先攻擊前面的高價值目標，逼它移開，再吃後面的棋。</p></details>
-  <details><summary>Passed pawn / 通路兵</summary><p>往升變方向的前方與左右相鄰 file，都沒有敵兵能正常攔它。</p></details>
-  <details><summary>Isolated pawn / 孤兵</summary><p>左右相鄰 file 都沒有自己的兵，因此缺少兵的互相保護。</p></details>
-  <details><summary>Doubled pawns / 疊兵</summary><p>同一條 file 上有兩顆自己的兵。</p></details>
-  <details><summary>Outpost / 前哨站</summary><p>深入敵方、能站穩、又很難被敵兵趕走的好格子，騎士尤其喜歡。</p></details>
-  <details><summary>Tempo</summary><p>可以把它想成「一步的時間」。浪費一步，就是讓對手多一個發展機會。</p></details>
+<section class="card"><div class="qtop"><h2 id="title"></h2></div><div id="prompt" class="prompt"></div><div id="status" class="status"></div>
+<div id="choices" class="choices"></div>
+<div class="actions"><button id="hint" class="btn">引導</button><button id="reset" class="btn">重設本題</button><button id="answer" class="btn primary">顯示答案</button></div>
+<div id="feedback" class="feedback"></div>
+<div class="nav"><button id="prev" class="btn">← 上一題</button><button id="next" class="btn primary">下一題 →</button></div>
 </section>
 </div>
+<script>/*
+ * Copyright (c) 2020, Jeff Hlywa (jhlywa@gmail.com)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ *----------------------------------------------------------------------------*/
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js?v=7"></script>
-<script src="./all-data.js?v=7"></script>
+/* minified license below  */
+
+/* @license
+ * Copyright (c) 2018, Jeff Hlywa (jhlywa@gmail.com)
+ * Released under the BSD license
+ * https://github.com/jhlywa/chess.js/blob/master/LICENSE
+ */
+
+var Chess = function(fen) {
+  var BLACK = 'b'
+  var WHITE = 'w'
+
+  var EMPTY = -1
+
+  var PAWN = 'p'
+  var KNIGHT = 'n'
+  var BISHOP = 'b'
+  var ROOK = 'r'
+  var QUEEN = 'q'
+  var KING = 'k'
+
+  var SYMBOLS = 'pnbrqkPNBRQK'
+
+  var DEFAULT_POSITION =
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+  var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
+
+  var PAWN_OFFSETS = {
+    b: [16, 32, 17, 15],
+    w: [-16, -32, -17, -15]
+  }
+
+  var PIECE_OFFSETS = {
+    n: [-18, -33, -31, -14, 18, 33, 31, 14],
+    b: [-17, -15, 17, 15],
+    r: [-16, 1, 16, -1],
+    q: [-17, -16, -15, 1, 17, 16, 15, -1],
+    k: [-17, -16, -15, 1, 17, 16, 15, -1]
+  }
+
+  // prettier-ignore
+  var ATTACKS = [
+    20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20, 0,
+     0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
+     0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
+     0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
+     0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
+    24,24,24,24,24,24,56,  0, 56,24,24,24,24,24,24, 0,
+     0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
+     0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
+     0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
+     0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
+    20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20
+  ];
+
+  // prettier-ignore
+  var RAYS = [
+     17,  0,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0,  0, 15, 0,
+      0, 17,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0, 15,  0, 0,
+      0,  0, 17,  0,  0,  0,  0, 16,  0,  0,  0,  0, 15,  0,  0, 0,
+      0,  0,  0, 17,  0,  0,  0, 16,  0,  0,  0, 15,  0,  0,  0, 0,
+      0,  0,  0,  0, 17,  0,  0, 16,  0,  0, 15,  0,  0,  0,  0, 0,
+      0,  0,  0,  0,  0, 17,  0, 16,  0, 15,  0,  0,  0,  0,  0, 0,
+      0,  0,  0,  0,  0,  0, 17, 16, 15,  0,  0,  0,  0,  0,  0, 0,
+      1,  1,  1,  1,  1,  1,  1,  0, -1, -1,  -1,-1, -1, -1, -1, 0,
+      0,  0,  0,  0,  0,  0,-15,-16,-17,  0,  0,  0,  0,  0,  0, 0,
+      0,  0,  0,  0,  0,-15,  0,-16,  0,-17,  0,  0,  0,  0,  0, 0,
+      0,  0,  0,  0,-15,  0,  0,-16,  0,  0,-17,  0,  0,  0,  0, 0,
+      0,  0,  0,-15,  0,  0,  0,-16,  0,  0,  0,-17,  0,  0,  0, 0,
+      0,  0,-15,  0,  0,  0,  0,-16,  0,  0,  0,  0,-17,  0,  0, 0,
+      0,-15,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,-17,  0, 0,
+    -15,  0,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,  0,-17
+  ];
+
+  var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
+
+  var FLAGS = {
+    NORMAL: 'n',
+    CAPTURE: 'c',
+    BIG_PAWN: 'b',
+    EP_CAPTURE: 'e',
+    PROMOTION: 'p',
+    KSIDE_CASTLE: 'k',
+    QSIDE_CASTLE: 'q'
+  }
+
+  var BITS = {
+    NORMAL: 1,
+    CAPTURE: 2,
+    BIG_PAWN: 4,
+    EP_CAPTURE: 8,
+    PROMOTION: 16,
+    KSIDE_CASTLE: 32,
+    QSIDE_CASTLE: 64
+  }
+
+  var RANK_1 = 7
+  var RANK_2 = 6
+  var RANK_3 = 5
+  var RANK_4 = 4
+  var RANK_5 = 3
+  var RANK_6 = 2
+  var RANK_7 = 1
+  var RANK_8 = 0
+
+  // prettier-ignore
+  var SQUARES = {
+    a8:   0, b8:   1, c8:   2, d8:   3, e8:   4, f8:   5, g8:   6, h8:   7,
+    a7:  16, b7:  17, c7:  18, d7:  19, e7:  20, f7:  21, g7:  22, h7:  23,
+    a6:  32, b6:  33, c6:  34, d6:  35, e6:  36, f6:  37, g6:  38, h6:  39,
+    a5:  48, b5:  49, c5:  50, d5:  51, e5:  52, f5:  53, g5:  54, h5:  55,
+    a4:  64, b4:  65, c4:  66, d4:  67, e4:  68, f4:  69, g4:  70, h4:  71,
+    a3:  80, b3:  81, c3:  82, d3:  83, e3:  84, f3:  85, g3:  86, h3:  87,
+    a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
+    a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
+  };
+
+  var ROOKS = {
+    w: [
+      { square: SQUARES.a1, flag: BITS.QSIDE_CASTLE },
+      { square: SQUARES.h1, flag: BITS.KSIDE_CASTLE }
+    ],
+    b: [
+      { square: SQUARES.a8, flag: BITS.QSIDE_CASTLE },
+      { square: SQUARES.h8, flag: BITS.KSIDE_CASTLE }
+    ]
+  }
+
+  var board = new Array(128)
+  var kings = { w: EMPTY, b: EMPTY }
+  var turn = WHITE
+  var castling = { w: 0, b: 0 }
+  var ep_square = EMPTY
+  var half_moves = 0
+  var move_number = 1
+  var history = []
+  var header = {}
+
+  /* if the user passes in a fen string, load it, else default to
+   * starting position
+   */
+  if (typeof fen === 'undefined') {
+    load(DEFAULT_POSITION)
+  } else {
+    load(fen)
+  }
+
+  function clear(keep_headers) {
+    if (typeof keep_headers === 'undefined') {
+      keep_headers = false
+    }
+
+    board = new Array(128)
+    kings = { w: EMPTY, b: EMPTY }
+    turn = WHITE
+    castling = { w: 0, b: 0 }
+    ep_square = EMPTY
+    half_moves = 0
+    move_number = 1
+    history = []
+    if (!keep_headers) header = {}
+    update_setup(generate_fen())
+  }
+
+  function reset() {
+    load(DEFAULT_POSITION)
+  }
+
+  function load(fen, keep_headers) {
+    if (typeof keep_headers === 'undefined') {
+      keep_headers = false
+    }
+
+    var tokens = fen.split(/\s+/)
+    var position = tokens[0]
+    var square = 0
+
+    if (!validate_fen(fen).valid) {
+      return false
+    }
+
+    clear(keep_headers)
+
+    for (var i = 0; i < position.length; i++) {
+      var piece = position.charAt(i)
+
+      if (piece === '/') {
+        square += 8
+      } else if (is_digit(piece)) {
+        square += parseInt(piece, 10)
+      } else {
+        var color = piece < 'a' ? WHITE : BLACK
+        put({ type: piece.toLowerCase(), color: color }, algebraic(square))
+        square++
+      }
+    }
+
+    turn = tokens[1]
+
+    if (tokens[2].indexOf('K') > -1) {
+      castling.w |= BITS.KSIDE_CASTLE
+    }
+    if (tokens[2].indexOf('Q') > -1) {
+      castling.w |= BITS.QSIDE_CASTLE
+    }
+    if (tokens[2].indexOf('k') > -1) {
+      castling.b |= BITS.KSIDE_CASTLE
+    }
+    if (tokens[2].indexOf('q') > -1) {
+      castling.b |= BITS.QSIDE_CASTLE
+    }
+
+    ep_square = tokens[3] === '-' ? EMPTY : SQUARES[tokens[3]]
+    half_moves = parseInt(tokens[4], 10)
+    move_number = parseInt(tokens[5], 10)
+
+    update_setup(generate_fen())
+
+    return true
+  }
+
+  /* TODO: this function is pretty much crap - it validates structure but
+   * completely ignores content (e.g. doesn't verify that each side has a king)
+   * ... we should rewrite this, and ditch the silly error_number field while
+   * we're at it
+   */
+  function validate_fen(fen) {
+    var errors = {
+      0: 'No errors.',
+      1: 'FEN string must contain six space-delimited fields.',
+      2: '6th field (move number) must be a positive integer.',
+      3: '5th field (half move counter) must be a non-negative integer.',
+      4: '4th field (en-passant square) is invalid.',
+      5: '3rd field (castling availability) is invalid.',
+      6: '2nd field (side to move) is invalid.',
+      7: "1st field (piece positions) does not contain 8 '/'-delimited rows.",
+      8: '1st field (piece positions) is invalid [consecutive numbers].',
+      9: '1st field (piece positions) is invalid [invalid piece].',
+      10: '1st field (piece positions) is invalid [row too large].',
+      11: 'Illegal en-passant square'
+    }
+
+    /* 1st criterion: 6 space-seperated fields? */
+    var tokens = fen.split(/\s+/)
+    if (tokens.length !== 6) {
+      return { valid: false, error_number: 1, error: errors[1] }
+    }
+
+    /* 2nd criterion: move number field is a integer value > 0? */
+    if (isNaN(tokens[5]) || parseInt(tokens[5], 10) <= 0) {
+      return { valid: false, error_number: 2, error: errors[2] }
+    }
+
+    /* 3rd criterion: half move counter is an integer >= 0? */
+    if (isNaN(tokens[4]) || parseInt(tokens[4], 10) < 0) {
+      return { valid: false, error_number: 3, error: errors[3] }
+    }
+
+    /* 4th criterion: 4th field is a valid e.p.-string? */
+    if (!/^(-|[abcdefgh][36])$/.test(tokens[3])) {
+      return { valid: false, error_number: 4, error: errors[4] }
+    }
+
+    /* 5th criterion: 3th field is a valid castle-string? */
+    if (!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(tokens[2])) {
+      return { valid: false, error_number: 5, error: errors[5] }
+    }
+
+    /* 6th criterion: 2nd field is "w" (white) or "b" (black)? */
+    if (!/^(w|b)$/.test(tokens[1])) {
+      return { valid: false, error_number: 6, error: errors[6] }
+    }
+
+    /* 7th criterion: 1st field contains 8 rows? */
+    var rows = tokens[0].split('/')
+    if (rows.length !== 8) {
+      return { valid: false, error_number: 7, error: errors[7] }
+    }
+
+    /* 8th criterion: every row is valid? */
+    for (var i = 0; i < rows.length; i++) {
+      /* check for right sum of fields AND not two numbers in succession */
+      var sum_fields = 0
+      var previous_was_number = false
+
+      for (var k = 0; k < rows[i].length; k++) {
+        if (!isNaN(rows[i][k])) {
+          if (previous_was_number) {
+            return { valid: false, error_number: 8, error: errors[8] }
+          }
+          sum_fields += parseInt(rows[i][k], 10)
+          previous_was_number = true
+        } else {
+          if (!/^[prnbqkPRNBQK]$/.test(rows[i][k])) {
+            return { valid: false, error_number: 9, error: errors[9] }
+          }
+          sum_fields += 1
+          previous_was_number = false
+        }
+      }
+      if (sum_fields !== 8) {
+        return { valid: false, error_number: 10, error: errors[10] }
+      }
+    }
+
+    if (
+      (tokens[3][1] == '3' && tokens[1] == 'w') ||
+      (tokens[3][1] == '6' && tokens[1] == 'b')
+    ) {
+      return { valid: false, error_number: 11, error: errors[11] }
+    }
+
+    /* everything's okay! */
+    return { valid: true, error_number: 0, error: errors[0] }
+  }
+
+  function generate_fen() {
+    var empty = 0
+    var fen = ''
+
+    for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      if (board[i] == null) {
+        empty++
+      } else {
+        if (empty > 0) {
+          fen += empty
+          empty = 0
+        }
+        var color = board[i].color
+        var piece = board[i].type
+
+        fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+      }
+
+      if ((i + 1) & 0x88) {
+        if (empty > 0) {
+          fen += empty
+        }
+
+        if (i !== SQUARES.h1) {
+          fen += '/'
+        }
+
+        empty = 0
+        i += 8
+      }
+    }
+
+    var cflags = ''
+    if (castling[WHITE] & BITS.KSIDE_CASTLE) {
+      cflags += 'K'
+    }
+    if (castling[WHITE] & BITS.QSIDE_CASTLE) {
+      cflags += 'Q'
+    }
+    if (castling[BLACK] & BITS.KSIDE_CASTLE) {
+      cflags += 'k'
+    }
+    if (castling[BLACK] & BITS.QSIDE_CASTLE) {
+      cflags += 'q'
+    }
+
+    /* do we have an empty castling flag? */
+    cflags = cflags || '-'
+    var epflags = ep_square === EMPTY ? '-' : algebraic(ep_square)
+
+    return [fen, turn, cflags, epflags, half_moves, move_number].join(' ')
+  }
+
+  function set_header(args) {
+    for (var i = 0; i < args.length; i += 2) {
+      if (typeof args[i] === 'string' && typeof args[i + 1] === 'string') {
+        header[args[i]] = args[i + 1]
+      }
+    }
+    return header
+  }
+
+  /* called when the initial board setup is changed with put() or remove().
+   * modifies the SetUp and FEN properties of the header object.  if the FEN is
+   * equal to the default position, the SetUp and FEN are deleted
+   * the setup is only updated if history.length is zero, ie moves haven't been
+   * made.
+   */
+  function update_setup(fen) {
+    if (history.length > 0) return
+
+    if (fen !== DEFAULT_POSITION) {
+      header['SetUp'] = '1'
+      header['FEN'] = fen
+    } else {
+      delete header['SetUp']
+      delete header['FEN']
+    }
+  }
+
+  function get(square) {
+    var piece = board[SQUARES[square]]
+    return piece ? { type: piece.type, color: piece.color } : null
+  }
+
+  function put(piece, square) {
+    /* check for valid piece object */
+    if (!('type' in piece && 'color' in piece)) {
+      return false
+    }
+
+    /* check for piece */
+    if (SYMBOLS.indexOf(piece.type.toLowerCase()) === -1) {
+      return false
+    }
+
+    /* check for valid square */
+    if (!(square in SQUARES)) {
+      return false
+    }
+
+    var sq = SQUARES[square]
+
+    /* don't let the user place more than one king */
+    if (
+      piece.type == KING &&
+      !(kings[piece.color] == EMPTY || kings[piece.color] == sq)
+    ) {
+      return false
+    }
+
+    board[sq] = { type: piece.type, color: piece.color }
+    if (piece.type === KING) {
+      kings[piece.color] = sq
+    }
+
+    update_setup(generate_fen())
+
+    return true
+  }
+
+  function remove(square) {
+    var piece = get(square)
+    board[SQUARES[square]] = null
+    if (piece && piece.type === KING) {
+      kings[piece.color] = EMPTY
+    }
+
+    update_setup(generate_fen())
+
+    return piece
+  }
+
+  function build_move(board, from, to, flags, promotion) {
+    var move = {
+      color: turn,
+      from: from,
+      to: to,
+      flags: flags,
+      piece: board[from].type
+    }
+
+    if (promotion) {
+      move.flags |= BITS.PROMOTION
+      move.promotion = promotion
+    }
+
+    if (board[to]) {
+      move.captured = board[to].type
+    } else if (flags & BITS.EP_CAPTURE) {
+      move.captured = PAWN
+    }
+    return move
+  }
+
+  function generate_moves(options) {
+    function add_move(board, moves, from, to, flags) {
+      /* if pawn promotion */
+      if (
+        board[from].type === PAWN &&
+        (rank(to) === RANK_8 || rank(to) === RANK_1)
+      ) {
+        var pieces = [QUEEN, ROOK, BISHOP, KNIGHT]
+        for (var i = 0, len = pieces.length; i < len; i++) {
+          moves.push(build_move(board, from, to, flags, pieces[i]))
+        }
+      } else {
+        moves.push(build_move(board, from, to, flags))
+      }
+    }
+
+    var moves = []
+    var us = turn
+    var them = swap_color(us)
+    var second_rank = { b: RANK_7, w: RANK_2 }
+
+    var first_sq = SQUARES.a8
+    var last_sq = SQUARES.h1
+    var single_square = false
+
+    /* do we want legal moves? */
+    var legal =
+      typeof options !== 'undefined' && 'legal' in options
+        ? options.legal
+        : true
+
+    /* are we generating moves for a single square? */
+    if (typeof options !== 'undefined' && 'square' in options) {
+      if (options.square in SQUARES) {
+        first_sq = last_sq = SQUARES[options.square]
+        single_square = true
+      } else {
+        /* invalid square */
+        return []
+      }
+    }
+
+    for (var i = first_sq; i <= last_sq; i++) {
+      /* did we run off the end of the board */
+      if (i & 0x88) {
+        i += 7
+        continue
+      }
+
+      var piece = board[i]
+      if (piece == null || piece.color !== us) {
+        continue
+      }
+
+      if (piece.type === PAWN) {
+        /* single square, non-capturing */
+        var square = i + PAWN_OFFSETS[us][0]
+        if (board[square] == null) {
+          add_move(board, moves, i, square, BITS.NORMAL)
+
+          /* double square */
+          var square = i + PAWN_OFFSETS[us][1]
+          if (second_rank[us] === rank(i) && board[square] == null) {
+            add_move(board, moves, i, square, BITS.BIG_PAWN)
+          }
+        }
+
+        /* pawn captures */
+        for (j = 2; j < 4; j++) {
+          var square = i + PAWN_OFFSETS[us][j]
+          if (square & 0x88) continue
+
+          if (board[square] != null && board[square].color === them) {
+            add_move(board, moves, i, square, BITS.CAPTURE)
+          } else if (square === ep_square) {
+            add_move(board, moves, i, ep_square, BITS.EP_CAPTURE)
+          }
+        }
+      } else {
+        for (var j = 0, len = PIECE_OFFSETS[piece.type].length; j < len; j++) {
+          var offset = PIECE_OFFSETS[piece.type][j]
+          var square = i
+
+          while (true) {
+            square += offset
+            if (square & 0x88) break
+
+            if (board[square] == null) {
+              add_move(board, moves, i, square, BITS.NORMAL)
+            } else {
+              if (board[square].color === us) break
+              add_move(board, moves, i, square, BITS.CAPTURE)
+              break
+            }
+
+            /* break, if knight or king */
+            if (piece.type === 'n' || piece.type === 'k') break
+          }
+        }
+      }
+    }
+
+    /* check for castling if: a) we're generating all moves, or b) we're doing
+     * single square move generation on the king's square
+     */
+    if (!single_square || last_sq === kings[us]) {
+      /* king-side castling */
+      if (castling[us] & BITS.KSIDE_CASTLE) {
+        var castling_from = kings[us]
+        var castling_to = castling_from + 2
+
+        if (
+          board[castling_from + 1] == null &&
+          board[castling_to] == null &&
+          !attacked(them, kings[us]) &&
+          !attacked(them, castling_from + 1) &&
+          !attacked(them, castling_to)
+        ) {
+          add_move(board, moves, kings[us], castling_to, BITS.KSIDE_CASTLE)
+        }
+      }
+
+      /* queen-side castling */
+      if (castling[us] & BITS.QSIDE_CASTLE) {
+        var castling_from = kings[us]
+        var castling_to = castling_from - 2
+
+        if (
+          board[castling_from - 1] == null &&
+          board[castling_from - 2] == null &&
+          board[castling_from - 3] == null &&
+          !attacked(them, kings[us]) &&
+          !attacked(them, castling_from - 1) &&
+          !attacked(them, castling_to)
+        ) {
+          add_move(board, moves, kings[us], castling_to, BITS.QSIDE_CASTLE)
+        }
+      }
+    }
+
+    /* return all pseudo-legal moves (this includes moves that allow the king
+     * to be captured)
+     */
+    if (!legal) {
+      return moves
+    }
+
+    /* filter out illegal moves */
+    var legal_moves = []
+    for (var i = 0, len = moves.length; i < len; i++) {
+      make_move(moves[i])
+      if (!king_attacked(us)) {
+        legal_moves.push(moves[i])
+      }
+      undo_move()
+    }
+
+    return legal_moves
+  }
+
+  /* convert a move from 0x88 coordinates to Standard Algebraic Notation
+   * (SAN)
+   *
+   * @param {boolean} sloppy Use the sloppy SAN generator to work around over
+   * disambiguation bugs in Fritz and Chessbase.  See below:
+   *
+   * r1bqkbnr/ppp2ppp/2n5/1B1pP3/4P3/8/PPPP2PP/RNBQK1NR b KQkq - 2 4
+   * 4. ... Nge7 is overly disambiguated because the knight on c6 is pinned
+   * 4. ... Ne7 is technically the valid SAN
+   */
+  function move_to_san(move, sloppy) {
+    var output = ''
+
+    if (move.flags & BITS.KSIDE_CASTLE) {
+      output = 'O-O'
+    } else if (move.flags & BITS.QSIDE_CASTLE) {
+      output = 'O-O-O'
+    } else {
+      var disambiguator = get_disambiguator(move, sloppy)
+
+      if (move.piece !== PAWN) {
+        output += move.piece.toUpperCase() + disambiguator
+      }
+
+      if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+        if (move.piece === PAWN) {
+          output += algebraic(move.from)[0]
+        }
+        output += 'x'
+      }
+
+      output += algebraic(move.to)
+
+      if (move.flags & BITS.PROMOTION) {
+        output += '=' + move.promotion.toUpperCase()
+      }
+    }
+
+    make_move(move)
+    if (in_check()) {
+      if (in_checkmate()) {
+        output += '#'
+      } else {
+        output += '+'
+      }
+    }
+    undo_move()
+
+    return output
+  }
+
+  // parses all of the decorators out of a SAN string
+  function stripped_san(move) {
+    return move.replace(/=/, '').replace(/[+#]?[?!]*$/, '')
+  }
+
+  function attacked(color, square) {
+    for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      /* did we run off the end of the board */
+      if (i & 0x88) {
+        i += 7
+        continue
+      }
+
+      /* if empty square or wrong color */
+      if (board[i] == null || board[i].color !== color) continue
+
+      var piece = board[i]
+      var difference = i - square
+      var index = difference + 119
+
+      if (ATTACKS[index] & (1 << SHIFTS[piece.type])) {
+        if (piece.type === PAWN) {
+          if (difference > 0) {
+            if (piece.color === WHITE) return true
+          } else {
+            if (piece.color === BLACK) return true
+          }
+          continue
+        }
+
+        /* if the piece is a knight or a king */
+        if (piece.type === 'n' || piece.type === 'k') return true
+
+        var offset = RAYS[index]
+        var j = i + offset
+
+        var blocked = false
+        while (j !== square) {
+          if (board[j] != null) {
+            blocked = true
+            break
+          }
+          j += offset
+        }
+
+        if (!blocked) return true
+      }
+    }
+
+    return false
+  }
+
+  function king_attacked(color) {
+    return attacked(swap_color(color), kings[color])
+  }
+
+  function in_check() {
+    return king_attacked(turn)
+  }
+
+  function in_checkmate() {
+    return in_check() && generate_moves().length === 0
+  }
+
+  function in_stalemate() {
+    return !in_check() && generate_moves().length === 0
+  }
+
+  function insufficient_material() {
+    var pieces = {}
+    var bishops = []
+    var num_pieces = 0
+    var sq_color = 0
+
+    for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      sq_color = (sq_color + 1) % 2
+      if (i & 0x88) {
+        i += 7
+        continue
+      }
+
+      var piece = board[i]
+      if (piece) {
+        pieces[piece.type] = piece.type in pieces ? pieces[piece.type] + 1 : 1
+        if (piece.type === BISHOP) {
+          bishops.push(sq_color)
+        }
+        num_pieces++
+      }
+    }
+
+    /* k vs. k */
+    if (num_pieces === 2) {
+      return true
+    } else if (
+      /* k vs. kn .... or .... k vs. kb */
+      num_pieces === 3 &&
+      (pieces[BISHOP] === 1 || pieces[KNIGHT] === 1)
+    ) {
+      return true
+    } else if (num_pieces === pieces[BISHOP] + 2) {
+      /* kb vs. kb where any number of bishops are all on the same color */
+      var sum = 0
+      var len = bishops.length
+      for (var i = 0; i < len; i++) {
+        sum += bishops[i]
+      }
+      if (sum === 0 || sum === len) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  function in_threefold_repetition() {
+    /* TODO: while this function is fine for casual use, a better
+     * implementation would use a Zobrist key (instead of FEN). the
+     * Zobrist key would be maintained in the make_move/undo_move functions,
+     * avoiding the costly that we do below.
+     */
+    var moves = []
+    var positions = {}
+    var repetition = false
+
+    while (true) {
+      var move = undo_move()
+      if (!move) break
+      moves.push(move)
+    }
+
+    while (true) {
+      /* remove the last two fields in the FEN string, they're not needed
+       * when checking for draw by rep */
+      var fen = generate_fen()
+        .split(' ')
+        .slice(0, 4)
+        .join(' ')
+
+      /* has the position occurred three or move times */
+      positions[fen] = fen in positions ? positions[fen] + 1 : 1
+      if (positions[fen] >= 3) {
+        repetition = true
+      }
+
+      if (!moves.length) {
+        break
+      }
+      make_move(moves.pop())
+    }
+
+    return repetition
+  }
+
+  function push(move) {
+    history.push({
+      move: move,
+      kings: { b: kings.b, w: kings.w },
+      turn: turn,
+      castling: { b: castling.b, w: castling.w },
+      ep_square: ep_square,
+      half_moves: half_moves,
+      move_number: move_number
+    })
+  }
+
+  function make_move(move) {
+    var us = turn
+    var them = swap_color(us)
+    push(move)
+
+    board[move.to] = board[move.from]
+    board[move.from] = null
+
+    /* if ep capture, remove the captured pawn */
+    if (move.flags & BITS.EP_CAPTURE) {
+      if (turn === BLACK) {
+        board[move.to - 16] = null
+      } else {
+        board[move.to + 16] = null
+      }
+    }
+
+    /* if pawn promotion, replace with new piece */
+    if (move.flags & BITS.PROMOTION) {
+      board[move.to] = { type: move.promotion, color: us }
+    }
+
+    /* if we moved the king */
+    if (board[move.to].type === KING) {
+      kings[board[move.to].color] = move.to
+
+      /* if we castled, move the rook next to the king */
+      if (move.flags & BITS.KSIDE_CASTLE) {
+        var castling_to = move.to - 1
+        var castling_from = move.to + 1
+        board[castling_to] = board[castling_from]
+        board[castling_from] = null
+      } else if (move.flags & BITS.QSIDE_CASTLE) {
+        var castling_to = move.to + 1
+        var castling_from = move.to - 2
+        board[castling_to] = board[castling_from]
+        board[castling_from] = null
+      }
+
+      /* turn off castling */
+      castling[us] = ''
+    }
+
+    /* turn off castling if we move a rook */
+    if (castling[us]) {
+      for (var i = 0, len = ROOKS[us].length; i < len; i++) {
+        if (
+          move.from === ROOKS[us][i].square &&
+          castling[us] & ROOKS[us][i].flag
+        ) {
+          castling[us] ^= ROOKS[us][i].flag
+          break
+        }
+      }
+    }
+
+    /* turn off castling if we capture a rook */
+    if (castling[them]) {
+      for (var i = 0, len = ROOKS[them].length; i < len; i++) {
+        if (
+          move.to === ROOKS[them][i].square &&
+          castling[them] & ROOKS[them][i].flag
+        ) {
+          castling[them] ^= ROOKS[them][i].flag
+          break
+        }
+      }
+    }
+
+    /* if big pawn move, update the en passant square */
+    if (move.flags & BITS.BIG_PAWN) {
+      if (turn === 'b') {
+        ep_square = move.to - 16
+      } else {
+        ep_square = move.to + 16
+      }
+    } else {
+      ep_square = EMPTY
+    }
+
+    /* reset the 50 move counter if a pawn is moved or a piece is captured */
+    if (move.piece === PAWN) {
+      half_moves = 0
+    } else if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+      half_moves = 0
+    } else {
+      half_moves++
+    }
+
+    if (turn === BLACK) {
+      move_number++
+    }
+    turn = swap_color(turn)
+  }
+
+  function undo_move() {
+    var old = history.pop()
+    if (old == null) {
+      return null
+    }
+
+    var move = old.move
+    kings = old.kings
+    turn = old.turn
+    castling = old.castling
+    ep_square = old.ep_square
+    half_moves = old.half_moves
+    move_number = old.move_number
+
+    var us = turn
+    var them = swap_color(turn)
+
+    board[move.from] = board[move.to]
+    board[move.from].type = move.piece // to undo any promotions
+    board[move.to] = null
+
+    if (move.flags & BITS.CAPTURE) {
+      board[move.to] = { type: move.captured, color: them }
+    } else if (move.flags & BITS.EP_CAPTURE) {
+      var index
+      if (us === BLACK) {
+        index = move.to - 16
+      } else {
+        index = move.to + 16
+      }
+      board[index] = { type: PAWN, color: them }
+    }
+
+    if (move.flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
+      var castling_to, castling_from
+      if (move.flags & BITS.KSIDE_CASTLE) {
+        castling_to = move.to + 1
+        castling_from = move.to - 1
+      } else if (move.flags & BITS.QSIDE_CASTLE) {
+        castling_to = move.to - 2
+        castling_from = move.to + 1
+      }
+
+      board[castling_to] = board[castling_from]
+      board[castling_from] = null
+    }
+
+    return move
+  }
+
+  /* this function is used to uniquely identify ambiguous moves */
+  function get_disambiguator(move, sloppy) {
+    var moves = generate_moves({ legal: !sloppy })
+
+    var from = move.from
+    var to = move.to
+    var piece = move.piece
+
+    var ambiguities = 0
+    var same_rank = 0
+    var same_file = 0
+
+    for (var i = 0, len = moves.length; i < len; i++) {
+      var ambig_from = moves[i].from
+      var ambig_to = moves[i].to
+      var ambig_piece = moves[i].piece
+
+      /* if a move of the same piece type ends on the same to square, we'll
+       * need to add a disambiguator to the algebraic notation
+       */
+      if (piece === ambig_piece && from !== ambig_from && to === ambig_to) {
+        ambiguities++
+
+        if (rank(from) === rank(ambig_from)) {
+          same_rank++
+        }
+
+        if (file(from) === file(ambig_from)) {
+          same_file++
+        }
+      }
+    }
+
+    if (ambiguities > 0) {
+      /* if there exists a similar moving piece on the same rank and file as
+       * the move in question, use the square as the disambiguator
+       */
+      if (same_rank > 0 && same_file > 0) {
+        return algebraic(from)
+      } else if (same_file > 0) {
+        /* if the moving piece rests on the same file, use the rank symbol as the
+         * disambiguator
+         */
+        return algebraic(from).charAt(1)
+      } else {
+        /* else use the file symbol */
+        return algebraic(from).charAt(0)
+      }
+    }
+
+    return ''
+  }
+
+  function ascii() {
+    var s = '   +------------------------+\n'
+    for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      /* display the rank */
+      if (file(i) === 0) {
+        s += ' ' + '87654321'[rank(i)] + ' |'
+      }
+
+      /* empty piece */
+      if (board[i] == null) {
+        s += ' . '
+      } else {
+        var piece = board[i].type
+        var color = board[i].color
+        var symbol = color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+        s += ' ' + symbol + ' '
+      }
+
+      if ((i + 1) & 0x88) {
+        s += '|\n'
+        i += 8
+      }
+    }
+    s += '   +------------------------+\n'
+    s += '     a  b  c  d  e  f  g  h\n'
+
+    return s
+  }
+
+  // convert a move from Standard Algebraic Notation (SAN) to 0x88 coordinates
+  function move_from_san(move, sloppy) {
+    // strip off any move decorations: e.g Nf3+?!
+    var clean_move = stripped_san(move)
+
+    // if we're using the sloppy parser run a regex to grab piece, to, and from
+    // this should parse invalid SAN like: Pe2-e4, Rc1c4, Qf3xf7
+    if (sloppy) {
+      var matches = clean_move.match(
+        /([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/
+      )
+      if (matches) {
+        var piece = matches[1]
+        var from = matches[2]
+        var to = matches[3]
+        var promotion = matches[4]
+      }
+    }
+
+    var moves = generate_moves()
+    for (var i = 0, len = moves.length; i < len; i++) {
+      // try the strict parser first, then the sloppy parser if requested
+      // by the user
+      if (
+        clean_move === stripped_san(move_to_san(moves[i])) ||
+        (sloppy && clean_move === stripped_san(move_to_san(moves[i], true)))
+      ) {
+        return moves[i]
+      } else {
+        if (
+          matches &&
+          (!piece || piece.toLowerCase() == moves[i].piece) &&
+          SQUARES[from] == moves[i].from &&
+          SQUARES[to] == moves[i].to &&
+          (!promotion || promotion.toLowerCase() == moves[i].promotion)
+        ) {
+          return moves[i]
+        }
+      }
+    }
+
+    return null
+  }
+
+  /*****************************************************************************
+   * UTILITY FUNCTIONS
+   ****************************************************************************/
+  function rank(i) {
+    return i >> 4
+  }
+
+  function file(i) {
+    return i & 15
+  }
+
+  function algebraic(i) {
+    var f = file(i),
+      r = rank(i)
+    return 'abcdefgh'.substring(f, f + 1) + '87654321'.substring(r, r + 1)
+  }
+
+  function swap_color(c) {
+    return c === WHITE ? BLACK : WHITE
+  }
+
+  function is_digit(c) {
+    return '0123456789'.indexOf(c) !== -1
+  }
+
+  /* pretty = external move object */
+  function make_pretty(ugly_move) {
+    var move = clone(ugly_move)
+    move.san = move_to_san(move, false)
+    move.to = algebraic(move.to)
+    move.from = algebraic(move.from)
+
+    var flags = ''
+
+    for (var flag in BITS) {
+      if (BITS[flag] & move.flags) {
+        flags += FLAGS[flag]
+      }
+    }
+    move.flags = flags
+
+    return move
+  }
+
+  function clone(obj) {
+    var dupe = obj instanceof Array ? [] : {}
+
+    for (var property in obj) {
+      if (typeof property === 'object') {
+        dupe[property] = clone(obj[property])
+      } else {
+        dupe[property] = obj[property]
+      }
+    }
+
+    return dupe
+  }
+
+  function trim(str) {
+    return str.replace(/^\s+|\s+$/g, '')
+  }
+
+  /*****************************************************************************
+   * DEBUGGING UTILITIES
+   ****************************************************************************/
+  function perft(depth) {
+    var moves = generate_moves({ legal: false })
+    var nodes = 0
+    var color = turn
+
+    for (var i = 0, len = moves.length; i < len; i++) {
+      make_move(moves[i])
+      if (!king_attacked(color)) {
+        if (depth - 1 > 0) {
+          var child_nodes = perft(depth - 1)
+          nodes += child_nodes
+        } else {
+          nodes++
+        }
+      }
+      undo_move()
+    }
+
+    return nodes
+  }
+
+  return {
+    /***************************************************************************
+     * PUBLIC CONSTANTS (is there a better way to do this?)
+     **************************************************************************/
+    WHITE: WHITE,
+    BLACK: BLACK,
+    PAWN: PAWN,
+    KNIGHT: KNIGHT,
+    BISHOP: BISHOP,
+    ROOK: ROOK,
+    QUEEN: QUEEN,
+    KING: KING,
+    SQUARES: (function() {
+      /* from the ECMA-262 spec (section 12.6.4):
+       * "The mechanics of enumerating the properties ... is
+       * implementation dependent"
+       * so: for (var sq in SQUARES) { keys.push(sq); } might not be
+       * ordered correctly
+       */
+      var keys = []
+      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+        if (i & 0x88) {
+          i += 7
+          continue
+        }
+        keys.push(algebraic(i))
+      }
+      return keys
+    })(),
+    FLAGS: FLAGS,
+
+    /***************************************************************************
+     * PUBLIC API
+     **************************************************************************/
+    load: function(fen) {
+      return load(fen)
+    },
+
+    reset: function() {
+      return reset()
+    },
+
+    moves: function(options) {
+      /* The internal representation of a chess move is in 0x88 format, and
+       * not meant to be human-readable.  The code below converts the 0x88
+       * square coordinates to algebraic coordinates.  It also prunes an
+       * unnecessary move keys resulting from a verbose call.
+       */
+
+      var ugly_moves = generate_moves(options)
+      var moves = []
+
+      for (var i = 0, len = ugly_moves.length; i < len; i++) {
+        /* does the user want a full move object (most likely not), or just
+         * SAN
+         */
+        if (
+          typeof options !== 'undefined' &&
+          'verbose' in options &&
+          options.verbose
+        ) {
+          moves.push(make_pretty(ugly_moves[i]))
+        } else {
+          moves.push(move_to_san(ugly_moves[i], false))
+        }
+      }
+
+      return moves
+    },
+
+    in_check: function() {
+      return in_check()
+    },
+
+    in_checkmate: function() {
+      return in_checkmate()
+    },
+
+    in_stalemate: function() {
+      return in_stalemate()
+    },
+
+    in_draw: function() {
+      return (
+        half_moves >= 100 ||
+        in_stalemate() ||
+        insufficient_material() ||
+        in_threefold_repetition()
+      )
+    },
+
+    insufficient_material: function() {
+      return insufficient_material()
+    },
+
+    in_threefold_repetition: function() {
+      return in_threefold_repetition()
+    },
+
+    game_over: function() {
+      return (
+        half_moves >= 100 ||
+        in_checkmate() ||
+        in_stalemate() ||
+        insufficient_material() ||
+        in_threefold_repetition()
+      )
+    },
+
+    validate_fen: function(fen) {
+      return validate_fen(fen)
+    },
+
+    fen: function() {
+      return generate_fen()
+    },
+
+    board: function() {
+      var output = [],
+        row = []
+
+      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+        if (board[i] == null) {
+          row.push(null)
+        } else {
+          row.push({ type: board[i].type, color: board[i].color })
+        }
+        if ((i + 1) & 0x88) {
+          output.push(row)
+          row = []
+          i += 8
+        }
+      }
+
+      return output
+    },
+
+    pgn: function(options) {
+      /* using the specification from http://www.chessclub.com/help/PGN-spec
+       * example for html usage: .pgn({ max_width: 72, newline_char: "<br />" })
+       */
+      var newline =
+        typeof options === 'object' && typeof options.newline_char === 'string'
+          ? options.newline_char
+          : '\n'
+      var max_width =
+        typeof options === 'object' && typeof options.max_width === 'number'
+          ? options.max_width
+          : 0
+      var result = []
+      var header_exists = false
+
+      /* add the PGN header headerrmation */
+      for (var i in header) {
+        /* TODO: order of enumerated properties in header object is not
+         * guaranteed, see ECMA-262 spec (section 12.6.4)
+         */
+        result.push('[' + i + ' "' + header[i] + '"]' + newline)
+        header_exists = true
+      }
+
+      if (header_exists && history.length) {
+        result.push(newline)
+      }
+
+      /* pop all of history onto reversed_history */
+      var reversed_history = []
+      while (history.length > 0) {
+        reversed_history.push(undo_move())
+      }
+
+      var moves = []
+      var move_string = ''
+
+      /* build the list of moves.  a move_string looks like: "3. e3 e6" */
+      while (reversed_history.length > 0) {
+        var move = reversed_history.pop()
+
+        /* if the position started with black to move, start PGN with 1. ... */
+        if (!history.length && move.color === 'b') {
+          move_string = move_number + '. ...'
+        } else if (move.color === 'w') {
+          /* store the previous generated move_string if we have one */
+          if (move_string.length) {
+            moves.push(move_string)
+          }
+          move_string = move_number + '.'
+        }
+
+        move_string = move_string + ' ' + move_to_san(move, false)
+        make_move(move)
+      }
+
+      /* are there any other leftover moves? */
+      if (move_string.length) {
+        moves.push(move_string)
+      }
+
+      /* is there a result? */
+      if (typeof header.Result !== 'undefined') {
+        moves.push(header.Result)
+      }
+
+      /* history should be back to what is was before we started generating PGN,
+       * so join together moves
+       */
+      if (max_width === 0) {
+        return result.join('') + moves.join(' ')
+      }
+
+      /* wrap the PGN output at max_width */
+      var current_width = 0
+      for (var i = 0; i < moves.length; i++) {
+        /* if the current move will push past max_width */
+        if (current_width + moves[i].length > max_width && i !== 0) {
+          /* don't end the line with whitespace */
+          if (result[result.length - 1] === ' ') {
+            result.pop()
+          }
+
+          result.push(newline)
+          current_width = 0
+        } else if (i !== 0) {
+          result.push(' ')
+          current_width++
+        }
+        result.push(moves[i])
+        current_width += moves[i].length
+      }
+
+      return result.join('')
+    },
+
+    load_pgn: function(pgn, options) {
+      // allow the user to specify the sloppy move parser to work around over
+      // disambiguation bugs in Fritz and Chessbase
+      var sloppy =
+        typeof options !== 'undefined' && 'sloppy' in options
+          ? options.sloppy
+          : false
+
+      function mask(str) {
+        return str.replace(/\\/g, '\\')
+      }
+
+      function has_keys(object) {
+        for (var key in object) {
+          return true
+        }
+        return false
+      }
+
+      function parse_pgn_header(header, options) {
+        var newline_char =
+          typeof options === 'object' &&
+          typeof options.newline_char === 'string'
+            ? options.newline_char
+            : '\r?\n'
+        var header_obj = {}
+        var headers = header.split(new RegExp(mask(newline_char)))
+        var key = ''
+        var value = ''
+
+        for (var i = 0; i < headers.length; i++) {
+          key = headers[i].replace(/^\[([A-Z][A-Za-z]*)\s.*\]$/, '$1')
+          value = headers[i].replace(/^\[[A-Za-z]+\s"(.*)"\]$/, '$1')
+          if (trim(key).length > 0) {
+            header_obj[key] = value
+          }
+        }
+
+        return header_obj
+      }
+
+      var newline_char =
+        typeof options === 'object' && typeof options.newline_char === 'string'
+          ? options.newline_char
+          : '\r?\n'
+
+      // RegExp to split header. Takes advantage of the fact that header and movetext
+      // will always have a blank line between them (ie, two newline_char's).
+      // With default newline_char, will equal: /^(\[((?:\r?\n)|.)*\])(?:\r?\n){2}/
+      var header_regex = new RegExp(
+        '^(\\[((?:' +
+          mask(newline_char) +
+          ')|.)*\\])' +
+          '(?:' +
+          mask(newline_char) +
+          '){2}'
+      )
+
+      // If no header given, begin with moves.
+      var header_string = header_regex.test(pgn)
+        ? header_regex.exec(pgn)[1]
+        : ''
+
+      // Put the board in the starting position
+      reset()
+
+      /* parse PGN header */
+      var headers = parse_pgn_header(header_string, options)
+      for (var key in headers) {
+        set_header([key, headers[key]])
+      }
+
+      /* load the starting position indicated by [Setup '1'] and
+       * [FEN position] */
+      if (headers['SetUp'] === '1') {
+        if (!('FEN' in headers && load(headers['FEN'], true))) {
+          // second argument to load: don't clear the headers
+          return false
+        }
+      }
+
+      /* delete header to get the moves */
+      var ms = pgn
+        .replace(header_string, '')
+        .replace(new RegExp(mask(newline_char), 'g'), ' ')
+
+      /* delete comments */
+      ms = ms.replace(/(\{[^}]+\})+?/g, '')
+
+      /* delete recursive annotation variations */
+      var rav_regex = /(\([^\(\)]+\))+?/g
+      while (rav_regex.test(ms)) {
+        ms = ms.replace(rav_regex, '')
+      }
+
+      /* delete move numbers */
+      ms = ms.replace(/\d+\.(\.\.)?/g, '')
+
+      /* delete ... indicating black to move */
+      ms = ms.replace(/\.\.\./g, '')
+
+      /* delete numeric annotation glyphs */
+      ms = ms.replace(/\$\d+/g, '')
+
+      /* trim and get array of moves */
+      var moves = trim(ms).split(new RegExp(/\s+/))
+
+      /* delete empty entries */
+      moves = moves
+        .join(',')
+        .replace(/,,+/g, ',')
+        .split(',')
+      var move = ''
+
+      for (var half_move = 0; half_move < moves.length - 1; half_move++) {
+        move = move_from_san(moves[half_move], sloppy)
+
+        /* move not possible! (don't clear the board to examine to show the
+         * latest valid position)
+         */
+        if (move == null) {
+          return false
+        } else {
+          make_move(move)
+        }
+      }
+
+      /* examine last move */
+      move = moves[moves.length - 1]
+      if (POSSIBLE_RESULTS.indexOf(move) > -1) {
+        if (has_keys(header) && typeof header.Result === 'undefined') {
+          set_header(['Result', move])
+        }
+      } else {
+        move = move_from_san(move, sloppy)
+        if (move == null) {
+          return false
+        } else {
+          make_move(move)
+        }
+      }
+      return true
+    },
+
+    header: function() {
+      return set_header(arguments)
+    },
+
+    ascii: function() {
+      return ascii()
+    },
+
+    turn: function() {
+      return turn
+    },
+
+    move: function(move, options) {
+      /* The move function can be called with in the following parameters:
+       *
+       * .move('Nxb7')      <- where 'move' is a case-sensitive SAN string
+       *
+       * .move({ from: 'h7', <- where the 'move' is a move object (additional
+       *         to :'h8',      fields are ignored)
+       *         promotion: 'q',
+       *      })
+       */
+
+      // allow the user to specify the sloppy move parser to work around over
+      // disambiguation bugs in Fritz and Chessbase
+      var sloppy =
+        typeof options !== 'undefined' && 'sloppy' in options
+          ? options.sloppy
+          : false
+
+      var move_obj = null
+
+      if (typeof move === 'string') {
+        move_obj = move_from_san(move, sloppy)
+      } else if (typeof move === 'object') {
+        var moves = generate_moves()
+
+        /* convert the pretty move object to an ugly move object */
+        for (var i = 0, len = moves.length; i < len; i++) {
+          if (
+            move.from === algebraic(moves[i].from) &&
+            move.to === algebraic(moves[i].to) &&
+            (!('promotion' in moves[i]) ||
+              move.promotion === moves[i].promotion)
+          ) {
+            move_obj = moves[i]
+            break
+          }
+        }
+      }
+
+      /* failed to find move */
+      if (!move_obj) {
+        return null
+      }
+
+      /* need to make a copy of move because we can't generate SAN after the
+       * move is made
+       */
+      var pretty_move = make_pretty(move_obj)
+
+      make_move(move_obj)
+
+      return pretty_move
+    },
+
+    undo: function() {
+      var move = undo_move()
+      return move ? make_pretty(move) : null
+    },
+
+    clear: function() {
+      return clear()
+    },
+
+    put: function(piece, square) {
+      return put(piece, square)
+    },
+
+    get: function(square) {
+      return get(square)
+    },
+
+    remove: function(square) {
+      return remove(square)
+    },
+
+    perft: function(depth) {
+      return perft(depth)
+    },
+
+    square_color: function(square) {
+      if (square in SQUARES) {
+        var sq_0x88 = SQUARES[square]
+        return (rank(sq_0x88) + file(sq_0x88)) % 2 === 0 ? 'light' : 'dark'
+      }
+
+      return null
+    },
+
+    history: function(options) {
+      var reversed_history = []
+      var move_history = []
+      var verbose =
+        typeof options !== 'undefined' &&
+        'verbose' in options &&
+        options.verbose
+
+      while (history.length > 0) {
+        reversed_history.push(undo_move())
+      }
+
+      while (reversed_history.length > 0) {
+        var move = reversed_history.pop()
+        if (verbose) {
+          move_history.push(make_pretty(move))
+        } else {
+          move_history.push(move_to_san(move))
+        }
+        make_move(move)
+      }
+
+      return move_history
+    }
+  }
+}
+
+/* export Chess object if using node or any other CommonJS compatible
+ * environment */
+if (typeof exports !== 'undefined') exports.Chess = Chess
+/* export Chess object for any RequireJS compatible environment */
+if (typeof define !== 'undefined')
+  define(function() {
+    return Chess
+  })
+</script>
+<script>window.CHESS_COURSE = {
+  modules: [
+    {id:"M1", title:"每一手怎麼想", subtitle:"先建立不容易 blunder 的固定流程"},
+    {id:"M2", title:"兵型入門", subtitle:"全部用圖像理解，不先背術語"},
+    {id:"M3", title:"基本戰術", subtitle:"雙攻、牽制、串擊、閃擊"},
+    {id:"M4", title:"開局原則", subtitle:"知道為什麼走，而不是背棋譜"},
+    {id:"M5", title:"策略與好位置", subtitle:"沒有戰術時知道棋子該去哪"},
+    {id:"M6", title:"殘局基礎", subtitle:"王、通路兵與車兵殘局核心"},
+    {id:"M7", title:"計算方法", subtitle:"候選著、最佳回應與中間著"},
+    {id:"M8", title:"實戰決策", subtitle:"交換、王安全、時間與 blunder check"}
+  ],
+  questions: [
+    {
+      id:"M1-Q01", module:"M1", title:"一手同時做兩件事",
+      type:"move",
+      fen:"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+      prompt:"黑方走。找一手能『發展棋子』又能『攻擊白方中心兵』的棋。",
+      hint:"看 g8 的馬。它能不能一邊出動，一邊碰到 e4？",
+      expected:[{from:"g8",to:"f6"}],
+      correct:"很好。...Nf6 同時發展馬、攻擊 e4，也讓黑王更接近王車易位。高手喜歡一手完成多個任務。",
+      common:[
+        {code:"W1", title:"先走 ...Qe7", text:"不是大錯，但皇后太早出來，還會卡住 f8 的象；發展效率較低。"},
+        {code:"W2", title:"先跳 ...Nd4", text:"有攻擊味道，但同一隻馬再次移動，其他棋子還沒發展。除非有具體戰術，通常不急。"}
+      ]
+    },
+    {
+      id:"M1-Q02", module:"M1", title:"先看對手在威脅什麼",
+      type:"mcq",
+      fen:"rnbqkbnr/pppp1ppp/8/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 3",
+      prompt:"輪到黑方。白方皇后在 h5、象在 c4。你第一件事應該察覺什麼？",
+      choices:[
+        {id:"A", text:"白方想吃 a7 的兵", correct:false, explain:"不是主要危險。a7 離白方進攻重點很遠。"},
+        {id:"B", text:"白方威脅 Qxf7#（吃 f7 並將死）", correct:true, explain:"對。皇后與 c4 的象一起瞄準 f7。這就是為什麼每手先看對手威脅。"},
+        {id:"C", text:"白方想把王車易位", correct:false, explain:"白方確實可能想易位，但眼前更急的是直接的將死威脅。"},
+        {id:"D", text:"黑方可以先吃 c4 的象", correct:false, explain:"目前沒有這麼直接的合法吃法，而且即使有，也要先確認是否能解除將死威脅。"}
+      ]
+    },
+    {
+      id:"M1-Q03", module:"M1", title:"被牽制時先別慌",
+      type:"mcq",
+      fen:"rnbqk2r/pppp1ppp/5n2/4p3/4P1b1/5N2/PPPP1PPP/RNBQKB1R w KQkq - 4 4",
+      prompt:"黑象在 g4 壓住 f3 的馬。白方現在最好的思考順序是哪個？",
+      choices:[
+        {id:"A", text:"立刻想辦法趕走那隻象", correct:false, explain:"有時可以，但先確認是否真的有立即危險。不要看到被攻擊就自動反應。"},
+        {id:"B", text:"先看黑方的將軍、吃子、威脅，再找自己的強制著", correct:true, explain:"這是最穩定的實戰流程：先看對手強制手段，再看自己的。"},
+        {id:"C", text:"只計算自己最想走的那一步", correct:false, explain:"這很容易漏掉對手下一手的直接戰術。"},
+        {id:"D", text:"把所有合法走法都算一遍", correct:false, explain:"效率太低。高手不是算全部，而是先找高優先級候選著。"}
+      ]
+    },
+    {
+      id:"M1-Q04", module:"M1", title:"候選著先看什麼",
+      type:"mcq",
+      fen:"6k1/5ppp/8/7Q/2B5/8/8/6K1 w - - 0 1",
+      prompt:"白方準備計算下一手。通常最先檢查哪一類棋？",
+      choices:[
+        {id:"A", text:"將軍（Checks）", correct:true, explain:"對。將軍迫使對手回應，最容易縮小計算樹。"},
+        {id:"B", text:"隨便挑一顆沒動過的棋子", correct:false, explain:"發展很重要，但在可能有戰術時，強制著優先。"},
+        {id:"C", text:"只看吃兵", correct:false, explain:"吃子重要，但將軍通常更強制，應先檢查。"},
+        {id:"D", text:"先想十步後的理想位置", correct:false, explain:"太早。先排除眼前的強制變化與戰術。"}
+      ]
+    },
+
+    {
+      id:"M2-Q01", module:"M2", title:"同一路兩顆兵",
+      type:"mcq",
+      fen:"4k3/8/8/8/8/2P5/2P5/4K3 w - - 0 1",
+      prompt:"白方在 c2、c3 各有一顆兵。這種兵型叫什麼？",
+      choices:[
+        {id:"A", text:"孤兵：旁邊沒有自己的兵", correct:false, explain:"不是。這題重點是兩顆兵在同一條 c-file 上。"},
+        {id:"B", text:"落後兵：跟不上旁邊的兵", correct:false, explain:"不是。落後兵通常是旁邊兵往前了，自己難以安全推進。"},
+        {id:"C", text:"通路兵：前面沒有敵兵能攔", correct:false, explain:"是不是通路兵要看敵方兵的位置；光看 c2、c3 不能這樣判定。"},
+        {id:"D", text:"疊兵（doubled pawns）：同一路兩顆", correct:true, explain:"對。c2、c3 同在 c-file，所以叫疊兵。先記圖像：『同一路兩顆』。"}
+      ]
+    },
+    {
+      id:"M2-Q02", module:"M2", title:"沒有鄰居的兵",
+      type:"mcq",
+      fen:"4k3/8/8/8/3P4/8/P5P1/4K3 w - - 0 1",
+      prompt:"白方 d4 的兵，在 c-file 與 e-file 都沒有白兵。它最符合哪個描述？",
+      choices:[
+        {id:"A", text:"孤兵（isolated pawn）", correct:true, explain:"對。左右相鄰 file 都沒有自己的兵，所以缺乏兵的互相保護。"},
+        {id:"B", text:"疊兵", correct:false, explain:"疊兵要同一條 file 有兩顆自己的兵。"},
+        {id:"C", text:"通路兵", correct:false, explain:"要看敵兵是否能從前方或左右相鄰 file 阻擋；這題沒有提供那個條件。"},
+        {id:"D", text:"後翼兵", correct:false, explain:"這不是這裡要學的標準兵型名稱。"}
+      ]
+    },
+    {
+      id:"M2-Q03", module:"M2", title:"前面沒人攔的兵",
+      type:"mcq",
+      fen:"4k3/8/p6p/3P4/8/8/8/4K3 w - - 0 1",
+      prompt:"白方 d5 兵的前方 d-file，以及左右 c/e-file，都沒有黑兵。這顆兵叫什麼？",
+      choices:[
+        {id:"A", text:"疊兵", correct:false, explain:"不是。同一條 d-file 只有一顆白兵。"},
+        {id:"B", text:"落後兵", correct:false, explain:"不是。這顆兵反而已經很前進。"},
+        {id:"C", text:"通路兵（passed pawn）", correct:true, explain:"對。它前進到升變的路上，沒有敵兵能用正常兵路線攔住它。"},
+        {id:"D", text:"孤兵", correct:false, explain:"它可能同時也是孤兵，但題目強調的是『前方與左右相鄰 file 沒有敵兵』，所以重點是通路兵。"}
+      ]
+    },
+    {
+      id:"M2-Q04", module:"M2", title:"兵鏈的底部",
+      type:"mcq",
+      fen:"4k3/8/8/4P3/3P4/2P5/8/4K3 w - - 0 1",
+      prompt:"白兵形成 c3 → d4 → e5 的斜向兵鏈。通常哪顆兵最需要保護？",
+      choices:[
+        {id:"A", text:"e5，因為最前面", correct:false, explain:"e5 有 d4 保護；它不是整條鏈最缺乏兵保護的地方。"},
+        {id:"B", text:"d4，因為在中間", correct:false, explain:"d4 受到 c3 保護。"},
+        {id:"C", text:"c3，兵鏈的底部", correct:true, explain:"對。兵鏈往往從後方底部供應保護；攻擊者常瞄準底部。"},
+        {id:"D", text:"三顆都完全一樣", correct:false, explain:"不是。兵鏈的保護方向有結構，底部通常是關鍵弱點。"}
+      ]
+    },
+
+    {
+      id:"M3-Q01", module:"M3", title:"騎士雙攻",
+      type:"move",
+      fen:"8/4k3/3q4/8/7N/8/8/4K3 w - - 0 1",
+      prompt:"白方走。讓騎士同時攻擊黑王和黑后。",
+      hint:"從 h4 找一個能同時碰到 e7 與 d6 的格子。",
+      expected:[{from:"h4",to:"f5"}],
+      correct:"Nf5+！騎士同時將軍黑王，又攻擊 d6 的黑后。這叫 fork（雙攻）。",
+      common:[
+        {code:"W1", title:"只看有沒有吃子", text:"雙攻不一定要立刻吃。先創造『對手只能救一邊』的局面更重要。"},
+        {code:"W2", title:"只看到將軍", text:"將軍是好線索，但還要問：這個將軍是否同時攻擊更高價值目標？"}
+      ]
+    },
+    {
+      id:"M3-Q02", module:"M3", title:"一顆棋子不能動",
+      type:"mcq",
+      fen:"4k3/8/2n5/1B6/8/8/8/4K3 b - - 0 1",
+      prompt:"黑馬在 c6，白象在 b5，黑王在 e8。為什麼黑馬很尷尬？",
+      choices:[
+        {id:"A", text:"黑馬被自己的王擋住", correct:false, explain:"不是。王沒有擋馬的 L 形移動。"},
+        {id:"B", text:"黑馬一走，b5 象的斜線會直接攻擊黑王", correct:true, explain:"對。馬被『釘』在王前面，這叫 pin（牽制）。"},
+        {id:"C", text:"黑馬不能跳過棋子", correct:false, explain:"騎士本來就可以跳過棋子。"},
+        {id:"D", text:"因為黑馬在深色格", correct:false, explain:"格子顏色與騎士是否能動沒有直接關係。"}
+      ]
+    },
+    {
+      id:"M3-Q03", module:"M3", title:"先攻王，再拿后",
+      type:"mcq",
+      fen:"4q3/4k3/8/8/8/8/8/4R1K1 w - - 0 1",
+      prompt:"白車從 e1 沿 e-file 攻擊黑王 e7，黑后在王後面的 e8。王移開後，后會掉。這是什麼概念？",
+      choices:[
+        {id:"A", text:"雙攻", correct:false, explain:"有點相似，但這裡是同一直線上先逼前面的高價值目標移開，再吃後面的目標。"},
+        {id:"B", text:"牽制", correct:false, explain:"牽制是『前面的棋子因後方更重要目標而不敢動』；這題反過來，是王被迫先動。"},
+        {id:"C", text:"串擊（skewer）", correct:true, explain:"對。先攻前面的高價值目標，迫使它移開，再拿後面的棋。"},
+        {id:"D", text:"升變", correct:false, explain:"與兵到最後一排變棋子無關。"}
+      ]
+    },
+    {
+      id:"M3-Q04", module:"M3", title:"移開遮住的棋子",
+      type:"mcq",
+      fen:"4k3/7q/8/8/4N3/8/8/1B4K1 w - - 0 1",
+      prompt:"白象 b1 的斜線被自己的 e4 馬擋住。若馬移開後，象突然攻擊 h7 的黑后，這種想法叫什麼？",
+      choices:[
+        {id:"A", text:"閃擊／閃開攻擊（discovered attack）", correct:true, explain:"對。移開前面的棋子，讓後面的長程棋子突然發動攻擊。"},
+        {id:"B", text:"王車易位", correct:false, explain:"與王和車的特殊走法無關。"},
+        {id:"C", text:"兵鏈", correct:false, explain:"兵鏈是兵互相斜向保護的結構。"},
+        {id:"D", text:"困子", correct:false, explain:"這題核心是『移開遮擋，露出攻擊線』。"}
+      ]
+    },
+
+    {
+      id:"M4-Q01", module:"M4", title:"皇后太早出門",
+      type:"mcq",
+      fen:"r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 3",
+      prompt:"開局很早就把皇后放到 h5，最大的普遍風險是什麼？",
+      choices:[
+        {id:"A", text:"皇后會永遠不能回去", correct:false, explain:"不是。皇后仍然可以移動。"},
+        {id:"B", text:"對手可能一邊發展棋子，一邊追皇后，讓你浪費步數", correct:true, explain:"對。這叫丟 tempo：你反覆搬皇后，對手卻每手都在發展。"},
+        {id:"C", text:"皇后只能走直線", correct:false, explain:"皇后可以走直線與斜線。"},
+        {id:"D", text:"皇后出來後不能王車易位", correct:false, explain:"皇后的位置本身不會取消易位權。"}
+      ]
+    },
+    {
+      id:"M4-Q02", module:"M4", title:"王安全：及時易位",
+      type:"move",
+      fen:"r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+      prompt:"白方已經把王翼路線清空。走一手讓王安全、車也更快參戰的棋。",
+      hint:"這是王與車一次完成的特殊走法。",
+      expected:[{from:"e1",to:"g1"}],
+      correct:"O-O。王車易位一次完成王安全與車的連接，是開局最有效率的手段之一。",
+      common:[
+        {code:"W1", title:"先走 h3 / a3", text:"這些兵步有時有用，但若沒有具體需要，通常比完成王安全更慢。"},
+        {code:"W2", title:"再動已發展的棋子", text:"除非有戰術，開局通常優先把尚未工作的棋子帶出來並讓王安全。"}
+      ]
+    },
+    {
+      id:"M4-Q03", module:"M4", title:"中心不是口號",
+      type:"mcq",
+      fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      prompt:"起始局面，下列哪一手最直接爭取中心空間並打開棋子路線？",
+      choices:[
+        {id:"A", text:"a3", correct:false, explain:"只處理邊兵，對中心和棋子發展幫助很少。"},
+        {id:"B", text:"h3", correct:false, explain:"同樣是邊兵手，沒有立即爭取中心。"},
+        {id:"C", text:"d4", correct:true, explain:"對。d4 佔據中心，還打開 c1 象與 d1 后的線。"},
+        {id:"D", text:"Na3", correct:false, explain:"雖然是發展棋子，但馬在 a3 對中心控制較少。"}
+      ]
+    },
+    {
+      id:"M4-Q04", module:"M4", title:"同一顆棋子一直走",
+      type:"mcq",
+      fen:"rnbqkbnr/pppppppp/8/6N1/4P3/8/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      prompt:"假設白馬很早就從 g1→f3→g5，而其他棋子都還沒出來。普遍問題是什麼？",
+      choices:[
+        {id:"A", text:"馬走兩次就違規", correct:false, explain:"不是違規。問題是效率。"},
+        {id:"B", text:"花兩個 tempo 在同一顆棋子，其他棋子仍沒發展", correct:true, explain:"對。除非第二次移動帶來具體戰術，不然通常會落後發展。"},
+        {id:"C", text:"騎士不能到 g5", correct:false, explain:"可以。從 f3 到 g5 是合法騎士步。"},
+        {id:"D", text:"王因此永久不能易位", correct:false, explain:"馬的這些走法不會直接取消王車易位權。"}
+      ]
+    },
+
+    {
+      id:"M5-Q01", module:"M5", title:"壞象：先看自己的兵",
+      type:"mcq",
+      fen:"4k3/8/8/8/3P4/4P3/8/2B1K3 w - - 0 1",
+      prompt:"白象在 c1，自己的 d4、e3 兵限制它。這隻象現在怎麼評價最合理？",
+      choices:[
+        {id:"A", text:"偏壞象：活動空間被自己的同色兵限制", correct:true, explain:"對。『壞』不是說棋子本身變弱，而是目前可用斜線很少。"},
+        {id:"B", text:"好象：因為它還沒被吃", correct:false, explain:"好壞象主要看活動性和兵結構，不是看是否還活著。"},
+        {id:"C", text:"無法判斷，象永遠都一樣強", correct:false, explain:"象的實際價值會受兵結構與開放斜線大幅影響。"},
+        {id:"D", text:"壞象：因為它站在 c1", correct:false, explain:"位置本身不是原因；限制它的是自己的兵。"}
+      ]
+    },
+    {
+      id:"M5-Q02", module:"M5", title:"開放線給誰用",
+      type:"mcq",
+      fen:"3r2k1/8/8/8/8/8/8/3R2K1 w - - 0 1",
+      prompt:"d-file 上沒有兵，形成一條開放線。哪種棋子最喜歡佔據這種直線？",
+      choices:[
+        {id:"A", text:"車（Rook）", correct:true, explain:"對。車沿直線活動，開放 file 能最大化它的射程。"},
+        {id:"B", text:"騎士", correct:false, explain:"騎士不靠直線射程，所以開放 file 對它不是核心資源。"},
+        {id:"C", text:"兵", correct:false, explain:"兵反而會堵住 file。"},
+        {id:"D", text:"王", correct:false, explain:"王在殘局可很活躍，但『搶開放 file』主要是車的任務。"}
+      ]
+    },
+    {
+      id:"M5-Q03", module:"M5", title:"騎士的好據點",
+      type:"mcq",
+      fen:"6k1/2p3p1/8/4N3/3P1P2/8/8/6K1 w - - 0 1",
+      prompt:"白馬在 e5，有自己的 d4、f4 兵支持，而且黑方沒有兵能把它趕走。這種格子有什麼特點？",
+      choices:[
+        {id:"A", text:"前哨站／outpost：安全、深入、難被兵趕走", correct:true, explain:"對。騎士特別喜歡這種穩定中心格。"},
+        {id:"B", text:"一定是壞位置，因為在中心", correct:false, explain:"相反，騎士通常喜歡中心，因為能控制更多格。"},
+        {id:"C", text:"只有皇后能使用這種格子", correct:false, explain:"任何棋子都能占格，但 outpost 對騎士尤其有價值。"},
+        {id:"D", text:"這叫王車易位", correct:false, explain:"完全不同的概念。"}
+      ]
+    },
+    {
+      id:"M5-Q04", module:"M5", title:"弱格為什麼弱",
+      type:"mcq",
+      fen:"6k1/8/2p1p3/8/4N3/8/8/6K1 w - - 0 1",
+      prompt:"黑兵在 c6、e6。中間的 d6 沒有黑兵能再用兵去控制。為什麼 d6 可能成為弱格？",
+      choices:[
+        {id:"A", text:"因為 d6 是深色格", correct:false, explain:"顏色不是核心。"},
+        {id:"B", text:"黑兵結構已經讓它難以用兵驅趕進駐 d6 的白子", correct:true, explain:"對。弱格常指對手可以占據，而你很難用兵把它趕走。"},
+        {id:"C", text:"因為 d6 離王太遠", correct:false, explain:"弱格概念主要看兵能否控制，不是單看距離。"},
+        {id:"D", text:"所有沒有兵的格子都是弱格", correct:false, explain:"不是。很多空格完全不弱，關鍵是能否被有效控制和利用。"}
+      ]
+    },
+
+    {
+      id:"M6-Q01", module:"M6", title:"兩王面對面",
+      type:"mcq",
+      fen:"8/4k3/8/4K3/8/8/8/8 w - - 0 1",
+      prompt:"兩個王中間隔一格正面相對。這個殘局概念叫什麼？",
+      choices:[
+        {id:"A", text:"對王／opposition", correct:true, explain:"對。誰被迫先讓開，常會失去關鍵格。"},
+        {id:"B", text:"雙攻", correct:false, explain:"雙攻是同時攻擊兩個目標。"},
+        {id:"C", text:"牽制", correct:false, explain:"牽制需要前後目標在同一直線。"},
+        {id:"D", text:"兵鏈", correct:false, explain:"這裡沒有兵鏈。"}
+      ]
+    },
+    {
+      id:"M6-Q02", module:"M6", title:"殘局裡王是戰鬥棋子",
+      type:"mcq",
+      fen:"8/4k3/8/8/8/4P3/4K3/8 w - - 0 1",
+      prompt:"盤上大部分棋子都交換掉了。白方通常應如何看待自己的王？",
+      choices:[
+        {id:"A", text:"仍然躲在後面，永遠不要靠近中心", correct:false, explain:"這是開局常見安全觀念，但殘局不同。"},
+        {id:"B", text:"把王當成主動戰鬥棋子，往中心與兵靠近", correct:true, explain:"對。殘局王的活動性非常重要。"},
+        {id:"C", text:"王只能守兵，不能攻擊", correct:false, explain:"王可以攻擊並吃子，只要不走進被攻擊格。"},
+        {id:"D", text:"王的位置不再重要", correct:false, explain:"恰恰相反，殘局王的位置往往決定勝負。"}
+      ]
+    },
+    {
+      id:"M6-Q03", module:"M6", title:"兵能不能跑掉",
+      type:"mcq",
+      fen:"8/8/8/2P4k/8/8/8/4K3 w - - 0 1",
+      prompt:"白兵在 c5，黑王在 h5，白方走。只看『方格規則』的直覺，黑王來得及抓到這顆兵嗎？",
+      choices:[
+        {id:"A", text:"大致來不及；黑王在兵升變方格之外", correct:true, explain:"對。畫一個從兵到升變格的正方形，黑王不在裡面時通常追不上。"},
+        {id:"B", text:"一定來得及，因為王比兵強", correct:false, explain:"王雖強，但距離太遠時仍追不上即將升變的兵。"},
+        {id:"C", text:"兵不能自己升變", correct:false, explain:"兵到最後一排會升變。"},
+        {id:"D", text:"只有有車時才能判斷", correct:false, explain:"這是純王兵殘局就能用的快速判斷法。"}
+      ]
+    },
+    {
+      id:"M6-Q04", module:"M6", title:"車放在通路兵後面",
+      type:"mcq",
+      fen:"r5k1/8/4P3/8/8/8/8/4R1K1 w - - 0 1",
+      prompt:"白兵在 e6，白車在 e1 從後方支持它。這符合哪個常見車兵殘局原則？",
+      choices:[
+        {id:"A", text:"車通常喜歡放在通路兵後方", correct:true, explain:"對。兵往前走時，後方車的射程不會被自己的兵越來越堵住。"},
+        {id:"B", text:"車應永遠放在兵前面", correct:false, explain:"前面的車常會被自己的兵限制，而且容易被王攻擊。"},
+        {id:"C", text:"車的位置完全無所謂", correct:false, explain:"車的活動性是車兵殘局核心。"},
+        {id:"D", text:"只有皇后能支援通路兵", correct:false, explain:"車非常擅長從後方支援兵。"}
+      ]
+    },
+
+    {
+      id:"M7-Q01", module:"M7", title:"別只算自己的好棋",
+      type:"mcq",
+      fen:"6k1/5ppp/8/7Q/2B5/8/8/6K1 w - - 0 1",
+      prompt:"你找到一手看起來很強的將軍。下一步正確做法是什麼？",
+      choices:[
+        {id:"A", text:"立刻走，因為將軍一定最好", correct:false, explain:"將軍只是候選著，不保證最好。"},
+        {id:"B", text:"計算對手最強的回應，再看自己下一個強制著", correct:true, explain:"對。計算不是『我想怎麼走』，而是『對手最佳抵抗後還成立嗎』。"},
+        {id:"C", text:"只看對手最差的回應", correct:false, explain:"這會讓你高估自己的攻擊。"},
+        {id:"D", text:"如果看起來漂亮就不用算", correct:false, explain:"漂亮不等於正確。"}
+      ]
+    },
+    {
+      id:"M7-Q02", module:"M7", title:"候選著的高效率順序",
+      type:"mcq",
+      fen:"4k3/8/8/8/8/8/4Q3/4R1K1 w - - 0 1",
+      prompt:"局面可能有戰術時，最常用的高效率搜尋順序是哪個？",
+      choices:[
+        {id:"A", text:"將軍 → 吃子 → 威脅", correct:true, explain:"對。英文常縮寫 CCT：Checks, Captures, Threats。"},
+        {id:"B", text:"兵步 → 王步 → 邊線棋", correct:false, explain:"沒有這種通用優先級。"},
+        {id:"C", text:"從最漂亮的棋開始", correct:false, explain:"美感不是搜尋準則。"},
+        {id:"D", text:"把所有合法走法平均算一遍", correct:false, explain:"太慢，也浪費計算資源。"}
+      ]
+    },
+    {
+      id:"M7-Q03", module:"M7", title:"先插一手再回應",
+      type:"mcq",
+      fen:"4k3/8/8/8/8/8/3qQ3/4K3 w - - 0 1",
+      prompt:"對手剛攻擊你的皇后，但你發現可以先下一個強制將軍，再處理皇后。這種『中間插一手』的想法叫什麼？",
+      choices:[
+        {id:"A", text:"中間著（zwischenzug / intermediate move）", correct:true, explain:"對。不要自動回應對手威脅；先檢查自己有沒有更強的強制著。"},
+        {id:"B", text:"王車易位", correct:false, explain:"不是王與車的特殊走法。"},
+        {id:"C", text:"兵鏈", correct:false, explain:"不是兵結構。"},
+        {id:"D", text:"和棋", correct:false, explain:"與結果無關。"}
+      ]
+    },
+    {
+      id:"M7-Q04", module:"M7", title:"什麼時候停止往下算",
+      type:"mcq",
+      fen:"6k1/8/8/8/8/8/5Q2/6K1 w - - 0 1",
+      prompt:"計算一條變化時，什麼時候比較合理先停下來評估？",
+      choices:[
+        {id:"A", text:"只算自己一手就停", correct:false, explain:"通常太短，容易忽略對手直接反擊。"},
+        {id:"B", text:"直到雙方強制著大致結束、局面變安靜，再評估結果", correct:true, explain:"對。這叫算到 quiet position，再比較物質、王安全與棋子活動性。"},
+        {id:"C", text:"一定要算到將死", correct:false, explain:"很多局面沒有將死線，不需要無限算。"},
+        {id:"D", text:"只要看到自己吃到兵就停", correct:false, explain:"對手可能下一手吃更大的棋。"}
+      ]
+    },
+
+    {
+      id:"M8-Q01", module:"M8", title:"領先物質時的交換",
+      type:"mcq",
+      fen:"6k1/4q3/8/8/8/8/4Q3/4R1K1 w - - 0 1",
+      prompt:"白方比黑方多一台車，而且沒有直接被將死的危險。若能安全交換皇后，通常怎麼看？",
+      choices:[
+        {id:"A", text:"通常有利，因為減少黑方反攻機會，讓多出的車更有價值", correct:true, explain:"對。領先物質時，安全簡化局面通常是好方向。"},
+        {id:"B", text:"一定不好，高手從不換后", correct:false, explain:"沒有這種原則。交換是否好取決於局面與剩餘物質。"},
+        {id:"C", text:"只要能換就一定換，完全不用計算", correct:false, explain:"仍要確認交換後沒有戰術或殘局陷阱。"},
+        {id:"D", text:"皇后價值低於車，所以不能換", correct:false, explain:"皇后通常約 9 分，車約 5 分；而且這題談的是雙方皇后互換。"}
+      ]
+    },
+    {
+      id:"M8-Q02", module:"M8", title:"王安全比貪兵重要",
+      type:"mcq",
+      fen:"r1bqk2r/ppp2ppp/2n2n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",
+      prompt:"白王還在 e1，已經可以短易位。旁邊同時有一顆看似能吃的小兵。沒有戰術保證時，通常優先什麼？",
+      choices:[
+        {id:"A", text:"先完成王安全與發展", correct:true, explain:"對。開局多數情況下，安全與發展比貪一顆邊兵更重要。"},
+        {id:"B", text:"看到兵一定先吃", correct:false, explain:"貪兵常會浪費 tempo 或打開對手攻擊。"},
+        {id:"C", text:"永遠不要王車易位", correct:false, explain:"易位是非常常見的王安全手段。"},
+        {id:"D", text:"把皇后搬到邊線", correct:false, explain:"通常沒有必要，也可能拖慢發展。"}
+      ]
+    },
+    {
+      id:"M8-Q03", module:"M8", title:"車殘局：主動比死守重要",
+      type:"mcq",
+      fen:"6k1/7p/8/8/8/8/P7/R5K1 w - - 0 1",
+      prompt:"進入車殘局後，你的車目前在 a1。一般來說，最重要的方向是哪個？",
+      choices:[
+        {id:"A", text:"讓車保持主動，攻兵、切王、從側後方活動", correct:true, explain:"對。車殘局非常重視活動性，死守往往比少一兵更危險。"},
+        {id:"B", text:"把車鎖死在自己兵旁邊永遠不動", correct:false, explain:"被動車常讓對手王與車自由改善位置。"},
+        {id:"C", text:"只看自己多幾顆兵", correct:false, explain:"車的活動性常能抵消一顆兵的差距。"},
+        {id:"D", text:"車殘局不需要王", correct:false, explain:"王同樣非常重要。"}
+      ]
+    },
+    {
+      id:"M8-Q04", module:"M8", title:"落子前最後 5 秒",
+      type:"mcq",
+      fen:"4k3/8/8/8/8/8/3q4/4K3 w - - 0 1",
+      prompt:"你已經選好下一手。落子前最值得做的快速 blunder check 是什麼？",
+      choices:[
+        {id:"A", text:"再看一次：對手有沒有將軍、吃子、直接威脅", correct:true, explain:"對。這個 3–5 秒習慣能消滅大量低級失誤。"},
+        {id:"B", text:"想像自己贏棋後的局面", correct:false, explain:"沒有幫助，反而容易分心。"},
+        {id:"C", text:"重新把整盤從第一手算一次", correct:false, explain:"太慢，不實際。"},
+        {id:"D", text:"只確認自己的棋走得好看", correct:false, explain:"外觀不是安全檢查。"}
+      ]
+    }
+  ]
+};</script>
 <script>
+// Chess Coach V4 challenge extension
+window.CHESS_COURSE.modules.push(
+  {id:"M9", title:"挑戰・淺", subtitle:"先算 1–2 層，不再只靠口訣"},
+  {id:"M10", title:"挑戰・中", subtitle:"比較候選著，找對手最佳回應"},
+  {id:"M11", title:"挑戰・深", subtitle:"取捨、預防、優勢轉換與深層判斷"}
+);
+
+window.CHESS_COURSE.questions.push(
+{
+ id:"M9-Q01",module:"M9",difficulty:"淺",title:"兵真的免費嗎？",
+ type:"mcq",
+ fen:"r1bqk2r/ppp2ppp/2n2n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",
+ prompt:"白王現在沒有立即危險。你看到 d5、e5 的黑兵。哪個判斷最精確？",
+ choices:[
+  {id:"A",text:"Bxd5 直接贏一兵",correct:false,explain:"不一定。f6 的黑馬能參與回吃；要算完整個交換鏈。"},
+  {id:"B",text:"Nxe5 直接贏一兵",correct:false,explain:"不一定。c6 的黑馬控制 e5，可以回吃。"},
+  {id:"C",text:"兩顆都不能直接當成免費兵；先算回吃，再和 O-O 比較",correct:true,explain:"對。王沒立即危險不代表一定要先易位；但吃兵也必須先確認交換後是否真的賺。"},
+  {id:"D",text:"只要能王車易位，就不應該吃任何兵",correct:false,explain:"這是把原則當成死規則。若有乾淨的戰術獲利，吃兵可以優先。"}
+ ]
+},
+{
+ id:"M9-Q02",module:"M9",difficulty:"淺",title:"絕對牽制：它真的能走嗎？",
+ type:"mcq",
+ fen:"4k3/8/2n5/1B6/8/8/8/4K3 b - - 0 1",
+ prompt:"黑馬在 c6，白象 b5 的斜線通往黑王 e8。黑馬能不能隨便跳走？",
+ choices:[
+  {id:"A",text:"可以，因為騎士可以跳過棋子",correct:false,explain:"能跳過棋子，不代表能讓自己的王暴露在將軍線上。"},
+  {id:"B",text:"不行；若移開會讓 b5 象直接攻擊 e8 王",correct:true,explain:"對。這是 absolute pin；若移開會使自己的王被將軍，因此那個移動本身非法。"},
+  {id:"C",text:"只有皇后才能牽制",correct:false,explain:"象、車、后都能利用長線形成牽制。"},
+  {id:"D",text:"能不能走只看馬的 L 形",correct:false,explain:"合法走法還必須滿足自己的王不能處於被攻擊狀態。"}
+ ]
+},
+{
+ id:"M9-Q03",module:"M9",difficulty:"淺",title:"領先時要不要換后？",
+ type:"mcq",
+ fen:"6k1/4q3/8/8/8/8/4Q3/4R1K1 w - - 0 1",
+ prompt:"白方比黑方多一台車，沒有直接被將死。若能安全交換皇后，通常哪個想法更合理？",
+ choices:[
+  {id:"A",text:"避免換后，因為皇后最強",correct:false,explain:"領先物質時，保留大量攻擊棋子反而可能給對手更多反擊機會。"},
+  {id:"B",text:"傾向換后，但仍要確認交換後沒有戰術問題",correct:true,explain:"對。簡化會讓多出的車更容易成為決定性優勢，但仍不能自動交換。"},
+  {id:"C",text:"一定換后，不必計算",correct:false,explain:"原則永遠不能取代具體計算。"},
+  {id:"D",text:"是否換后只看棋子分值",correct:false,explain:"還要看王安全、活動性、兵型與殘局結構。"}
+ ]
+},
+{
+ id:"M9-Q04",module:"M9",difficulty:"淺",title:"前哨站值不值得留？",
+ type:"mcq",
+ fen:"6k1/2p3p1/8/4N3/3P1P2/8/8/6K1 w - - 0 1",
+ prompt:"白馬站在 e5，受 d4、f4 支持，而且黑兵很難把它趕走。若黑方願意用一隻普通的象交換它，白方通常怎麼想？",
+ choices:[
+  {id:"A",text:"通常不急著換；這隻馬是強力前哨",correct:true,explain:"對。棋子的名義分值不是全部；位置可以讓這匹馬的實際價值高很多。"},
+  {id:"B",text:"一定換，因為象和馬分值一樣",correct:false,explain:"分值只是粗略起點，位置品質很重要。"},
+  {id:"C",text:"騎士在中心一定危險",correct:false,explain:"騎士通常最喜歡中心，尤其是不能被兵趕走的中心格。"},
+  {id:"D",text:"只要能交換就交換",correct:false,explain:"無條件簡化會把自己的優勢棋子換掉。"}
+ ]
+},
+{
+ id:"M9-Q05",module:"M9",difficulty:"淺",title:"哪一顆棋子最該改善？",
+ type:"mcq",
+ fen:"r3k2r/ppp2ppp/2n5/3pp3/8/2N1PN2/PPPP1PPP/R1BQ1RK1 w kq - 0 8",
+ prompt:"白方已易位，兩匹馬都已發展，但 c1 象與 a1 車仍很被動。沒有立即戰術時，哪種思考最有效？",
+ choices:[
+  {id:"A",text:"再把已經很活躍的馬走第三次",correct:false,explain:"除非有具體戰術，重複移動強子通常不如改善最差的棋子。"},
+  {id:"B",text:"找方法發展 c1 象，讓兩台車逐步連起來",correct:true,explain:"對。改善最差的棋子，是中盤很實用的候選著產生方法。"},
+  {id:"C",text:"任意推邊兵",correct:false,explain:"邊兵有時有用途，但這裡更明顯的需求是完成發展。"},
+  {id:"D",text:"只盯著對手王，不管自己棋子",correct:false,explain:"沒有足夠棋子參戰時，攻王通常缺乏力量。"}
+ ]
+},
+{
+ id:"M9-Q06",module:"M9",difficulty:"淺",title:"最後 5 秒的防呆",
+ type:"mcq",
+ fen:"4k3/8/8/8/3q4/8/4R3/4K3 w - - 0 1",
+ prompt:"你已經想好一手看起來很漂亮的棋。落子前最後 3–5 秒，最該檢查什麼？",
+ choices:[
+  {id:"A",text:"對手下一手有沒有將軍、吃子、直接威脅",correct:true,explain:"對。這個 blunder check 對實戰棋力提升非常大。"},
+  {id:"B",text:"重新回想整個開局名稱",correct:false,explain:"開局名稱不會阻止你下一手掉后。"},
+  {id:"C",text:"自己的棋看起來是否積極",correct:false,explain:"積極不等於安全。"},
+  {id:"D",text:"只看自己能不能將軍",correct:false,explain:"你也必須看對手的強制著。"}
+ ]
+},
+
+{
+ id:"M10-Q01",module:"M10",difficulty:"中",title:"棋子協同：一步將死",
+ type:"move",
+ fen:"r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+ prompt:"白方走。找出立即將死的一手。",
+ hint:"看 f7。除了皇后之外，還有哪一顆白棋控制 f7？",
+ expected:[{from:"h5",to:"f7"}],
+ correct:"Qxf7#。關鍵不是皇后自己很強，而是 c4 的白象保護 f7，所以黑王不能 Kxf7。",
+ common:[
+  {code:"W1",title:"只看到皇后靠近王",text:"真正使將死成立的是棋子協同：皇后佔 f7，象 c4 保護 f7。"},
+  {code:"W2",title:"以為王可以吃任何貼身棋子",text:"王能吃棋，但目的格必須沒有被敵方棋子控制。"},
+  {code:"W3",title:"那 Bxf7+ 呢？",text:"Bxf7+ 也是將軍，而且黑王不能 Kxf7，因為 h5 的白后保護 f7；但它不是將死。黑王仍可走 Ke7。Qxf7# 的差別是皇后站在 f7 時同時控制 e7、d7 等逃生格，把黑王真正封死。"}
+ ]
+},
+{
+ id:"M10-Q02",module:"M10",difficulty:"中",title:"先找對手最強回應",
+ type:"mcq",
+ fen:"6k1/5ppp/8/7Q/2B5/8/8/6K1 w - - 0 1",
+ prompt:"你發現一手將軍，看起來能贏很多。真正的計算流程應該是？",
+ choices:[
+  {id:"A",text:"只算對手最自然的回應",correct:false,explain:"對手可能有更強的防守資源。"},
+  {id:"B",text:"列出所有合法走法，平均算一樣深",correct:false,explain:"太慢。應優先找最強、最強制的防守。"},
+  {id:"C",text:"先找對手最強回應，再看自己的下一個強制著",correct:true,explain:"對。計算品質取決於你是否替對手找最好棋。"},
+  {id:"D",text:"將軍通常都好，所以直接走",correct:false,explain:"無效將軍常只是浪費 tempo。"}
+ ]
+},
+{
+ id:"M10-Q03",module:"M10",difficulty:"中",title:"後排將死",
+ type:"move",
+ fen:"6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1",
+ prompt:"白方走，一步將死。",
+ hint:"黑王被自己的 f7、g7、h7 兵封住。讓車進入第 8 排。",
+ expected:[{from:"e1",to:"e8"}],
+ correct:"Re8#。黑王被自己的兵封在後排，這叫 back-rank mate。這也是為什麼有時 h6/h3 的『透氣格』很重要。",
+ common:[
+  {code:"W1",title:"一直將軍但不封出口",text:"將軍本身不夠；要看王有哪些逃生格。"},
+  {code:"W2",title:"忽略自己的兵也能困住王",text:"後排將死常是自己的兵牆把王封死。"}
+ ]
+},
+{
+ id:"M10-Q04",module:"M10",difficulty:"中",title:"關閉中心後，攻擊方向改了",
+ type:"mcq",
+ fen:"r1bq1rk1/ppp2ppp/2np1n2/4p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 w - - 0 8",
+ prompt:"雙方中心相對穩定、王都已易位。白方想進攻時，最成熟的想法是哪個？",
+ choices:[
+  {id:"A",text:"直接把皇后衝到對手王旁邊",correct:false,explain:"單一皇后通常不足以形成可靠攻勢。"},
+  {id:"B",text:"先問哪一側有空間、兵突破與更多棋子可投入，再決定攻擊翼",correct:true,explain:"對。攻擊方向由兵結構、空間與棋子數決定，不是固定公式。"},
+  {id:"C",text:"中心關閉就一定攻王翼",correct:false,explain:"有時攻后翼、有時攻王翼；必須看具體兵鏈與空間。"},
+  {id:"D",text:"中心關閉就不能進攻",correct:false,explain:"反而常能更積極推翼側兵，因為中心較不易突然打開。"}
+ ]
+},
+{
+ id:"M10-Q05",module:"M10",difficulty:"中",title:"強馬換壞象？",
+ type:"mcq",
+ fen:"6k1/2p3p1/3p4/4N3/3P1P2/8/8/2B3K1 w - - 0 1",
+ prompt:"白馬 e5 是強前哨；白象 c1 被自己的兵限制。若你只能保留其中一顆，通常更願意留下哪顆？",
+ choices:[
+  {id:"A",text:"留下 e5 的強馬",correct:true,explain:"對。棋子的實際價值取決於位置，不只是名義分值。"},
+  {id:"B",text:"一定留下象，因為象永遠比馬強",correct:false,explain:"不存在這種固定規則。"},
+  {id:"C",text:"哪顆都一樣",correct:false,explain:"一顆是強前哨、一顆受限，實戰價值不同。"},
+  {id:"D",text:"先把兩顆都換掉",correct:false,explain:"無條件交換會消除自己的優勢棋子。"}
+ ]
+},
+{
+ id:"M10-Q06",module:"M10",difficulty:"中",title:"車殘局：兵還是主動？",
+ type:"mcq",
+ fen:"6k1/7p/8/8/8/8/P7/R5K1 w - - 0 1",
+ prompt:"車殘局中，你可以選『守住一顆兵但車很被動』，或『暫時放掉兵但車能切王、將軍、攻後方』。通常哪個概念更重要？",
+ choices:[
+  {id:"A",text:"任何兵都不能放",correct:false,explain:"車殘局裡活動性經常比一顆兵更值錢。"},
+  {id:"B",text:"車的主動性通常優先，但仍要算是否會直接輸掉關鍵通路兵",correct:true,explain:"對。主動車能將軍、側攻、切王，常能製造足夠補償。"},
+  {id:"C",text:"只看物質數量",correct:false,explain:"車的位置與王的位置極其重要。"},
+  {id:"D",text:"車殘局不需要計算",correct:false,explain:"恰恰相反，很多車殘局需要精確計算。"}
+ ]
+},
+
+{
+ id:"M11-Q01",module:"M11",difficulty:"深",title:"預防：先問對手想幹嘛",
+ type:"mcq",
+ fen:"r4rk1/ppp2ppp/2npbn2/8/2B1P3/2NP1N2/PPP2PPP/R1BQR1K1 b - - 0 10",
+ prompt:"輪到黑方。沒有立即戰術。深一層的決策方法是什麼？",
+ choices:[
+  {id:"A",text:"只找自己最積極的一手",correct:false,explain:"這會忽略對手下一步可能獲得的強力計畫。"},
+  {id:"B",text:"先問白方下一步最想做什麼，再決定要阻止、忽略或反擊",correct:true,explain:"對。這就是 prophylaxis：不是被動防守，而是把對手計畫納入自己的決策。"},
+  {id:"C",text:"每一步都先退棋",correct:false,explain:"預防不等於消極。"},
+  {id:"D",text:"只要沒有將軍就隨便走",correct:false,explain:"高水平局面常在沒有戰術時由計畫決定。"}
+ ]
+},
+{
+ id:"M11-Q02",module:"M11",difficulty:"深",title:"靜態優勢 vs 動態優勢",
+ type:"mcq",
+ fen:"r2q1rk1/pp2bppp/2npbn2/2pp4/8/2N1PN2/PPQ1BPPP/R1B2RK1 w - - 0 10",
+ prompt:"白方兵型較健康；黑方棋子目前更活躍。哪種評估方式更成熟？",
+ choices:[
+  {id:"A",text:"只看兵型，白方一定好",correct:false,explain:"兵型是靜態因素，但活動性、先手與王安全是動態因素。"},
+  {id:"B",text:"只看誰現在有攻勢",correct:false,explain:"動態優勢可能消失；若攻勢沒轉化，靜態缺陷會留下。"},
+  {id:"C",text:"分開看靜態與動態；黑方若不能及時利用活動性，白方長期結構可能更有價值",correct:true,explain:"對。高手常問：這個優勢是會消失的，還是會留下來的？"},
+  {id:"D",text:"棋局只由物質決定",correct:false,explain:"位置因素常足以補償甚至超過物質差。"}
+ ]
+},
+{
+ id:"M11-Q03",module:"M11",difficulty:"深",title:"交換不是中性的",
+ type:"mcq",
+ fen:"6k1/2p2pp1/3p3p/4N3/3P1P2/8/6PP/6K1 w - - 0 1",
+ prompt:"白馬 e5 是全盤最強的棋子。若交換它會進入兵數相等、沒有明顯突破的殘局，哪個問題最值得先問？",
+ choices:[
+  {id:"A",text:"交換後，我還剩下什麼優勢？",correct:true,explain:"對。交換會改變局面性質；不要把強棋子換掉後才發現優勢也一起消失。"},
+  {id:"B",text:"交換是否讓棋子總數變少",correct:false,explain:"少棋子本身不是目的。"},
+  {id:"C",text:"交換後棋盤是否更漂亮",correct:false,explain:"沒有棋理意義。"},
+  {id:"D",text:"同分值棋子交換永遠中性",correct:false,explain:"位置、兵型與剩餘棋子會讓交換價值完全不同。"}
+ ]
+},
+{
+ id:"M11-Q04",module:"M11",difficulty:"深",title:"算到安靜局面再評估",
+ type:"mcq",
+ fen:"4k3/8/8/3q4/4Q3/8/8/4K3 w - - 0 1",
+ prompt:"你正在算一串強制交換。什麼時候最適合停止這條變化並做局面評估？",
+ choices:[
+  {id:"A",text:"自己吃到第一顆棋就停",correct:false,explain:"對手可能馬上回吃或有更強的中間著。"},
+  {id:"B",text:"雙方將軍與強制吃子大致結束、局面變安靜時",correct:true,explain:"對。這時再比較物質、王安全、活動性、兵型，評估才有意義。"},
+  {id:"C",text:"一定要算到 20 手",correct:false,explain:"深度不是固定數字；強制程度更重要。"},
+  {id:"D",text:"只要自己覺得舒服就停",correct:false,explain:"這容易造成 confirmation bias。"}
+ ]
+},
+{
+ id:"M11-Q05",module:"M11",difficulty:"深",title:"優勢要轉換，不是收藏",
+ type:"mcq",
+ fen:"6k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
+ prompt:"白方有一匹非常強的馬，但若用它交換黑方最後一個防守子，經計算會得到明確勝勢兵殘局。怎麼看？",
+ choices:[
+  {id:"A",text:"不能換，因為強馬很珍貴",correct:false,explain:"優勢的目的不是收藏，而是轉換成更容易贏的形式。"},
+  {id:"B",text:"若兵殘局經計算是明確勝勢，交換是好的優勢轉換",correct:true,explain:"對。高手會把位置優勢轉換成可實現、可計算的終局優勢。"},
+  {id:"C",text:"只要交換就一定更好",correct:false,explain:"前提是你真的算清楚交換後的殘局。"},
+  {id:"D",text:"強棋子永遠不能換",correct:false,explain:"沒有這種規則。"}
+ ]
+},
+{
+ id:"M11-Q06",module:"M11",difficulty:"深",title:"高手的最後一步：比較候選著",
+ type:"mcq",
+ fen:"r2q1rk1/pp2bppp/2npbn2/2pp4/8/2N1PN2/PPQ1BPPP/R1B2RK1 w - - 0 10",
+ prompt:"你找到三個都合理的候選著：改善最差棋子、製造威脅、預防對手突破。最後應該怎麼選？",
+ choices:[
+  {id:"A",text:"挑最有攻擊性的",correct:false,explain:"攻擊性只是特徵，不代表客觀效果最好。"},
+  {id:"B",text:"挑自己最熟悉的",correct:false,explain:"熟悉度可影響實戰選擇，但不是棋理上的最終比較方法。"},
+  {id:"C",text:"對每個候選著找對手最佳回應，再比較 resulting position",correct:true,explain:"對。候選著只是起點；真正的選擇來自對手最佳抵抗後，哪個結果最好。"},
+  {id:"D",text:"隨機選，因為三個都合理",correct:false,explain:"高水平差距往往就在這個比較階段。"}
+ ]
+}
+);
+
+window.CHESS_COURSE.modules.push(
+  {id:"M12", title:"診斷・難題", subtitle:"不提示、不判分；用你的實際選擇診斷弱點"}
+);
+
+window.CHESS_COURSE.questions.push(
+{
+ id:"M12-Q01",alias:"D1",module:"M12",difficulty:"診斷",title:"D1｜只走最佳第一手",
+ type:"diagnostic",
+ fen:"r1bqrk2/1pp1np2/p3pn2/3p2N1/1B3P2/NP1BP2P/P1PPQ3/R3K1R1 w - - 0 1",
+ prompt:"白方走。不要提示、不要看答案、不要用引擎。給自己最多 3 分鐘，只走你認為最強的一手。",
+ note:"這題頁面不會告訴你對錯。走完後，把顯示的 D1 答案代碼與你的理由貼回 ChatGPT。"
+}
+);</script>
+<script>
+(function(){
+const C=window.CHESS_COURSE;
+const old=C.questions.findIndex(q=>q.id==="M12-Q01");
+if(old>=0) C.questions.splice(old,1);
+
+const mod=C.modules.find(m=>m.id==="M12");
+if(mod){
+  mod.title="實戰診斷";
+  mod.subtitle="直接下棋 → 分支追問 → 自動診斷 → 完整詳解";
+}
+
+C.questions.push(
+{
+ id:"M12-Q01",alias:"D1",module:"M12",difficulty:"難",title:"D1｜安靜著與強制將殺",
+ type:"diagnostic",
+ fen:"r1bqrk2/1pp1np2/p3pn2/3p2N1/1B3P2/NP1BP2P/P1PPQ3/R3K1R1 w - - 0 1",
+ intro:"白方走。不要先找題型，只找你認為最強的棋。你必須一路把變化走完。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手是什麼？",
+   expected:{from:"e2",to:"h5"},
+   after:[{from:"f8",to:"g8"}],
+   afterText:"黑方以 ...Kg8 回應。現在繼續找白方最強的一手。",
+   success:"很好。你沒有被『一定要先將軍』綁住，而是找到安靜的 Qh5！。它把黑王逼進一個強制網。",
+   alternatives:[
+    {from:"g5",to:"e6",title:"Nxe6+：有將軍，但太早滿足",tag:"強迫著偏誤",pros:"你有先找 check，方向沒錯。",cons:"這手沒有利用完整的將殺幾何；本局存在更強的強制勝法。",coach:"找 checks 之後，再多問一次：有沒有一手『不是將軍，但下一手無法防』？"},
+    {from:"g5",to:"f7",title:"Nxf7：看到雙攻／攻后",tag:"物質偏誤",pros:"馬到 f7 會碰到 d8 皇后，戰術感是有的。",cons:"你把『贏后』放在『將死』之前。若對方王已暴露，優先掃描 mating net。",coach:"攻王局面先比較：將死 > 贏后 > 贏小子。"},
+    {from:"b4",to:"e7",title:"Bxe7+：強制但不夠強",tag:"check tunnel vision",pros:"你有注意 pinned knight 和將軍。",cons:"第一個看到的 check 不一定最好；它沒有像 Qh5 一樣把黑王的逃生格一起封死。",coach:"每找到一個 check，至少再找一個候選著再比較。"}
+   ],
+   other:{title:"其他走法",tag:"候選著產生",pros:"至少你在找主動手段。",cons:"這個局面有強制將殺；若完全沒把 Qh5 列入候選，代表攻王幾何掃描還不完整。",coach:"依序掃：王周圍逃生格 → 我方 queen/rook/bishop 的線 → knight 控制格 → quiet threat。"}
+  },
+  {
+   prompt:"第 2 手：黑王已到 g8。白方怎麼繼續？",
+   expected:{from:"h5",to:"h8"},
+   after:[{from:"g8",to:"h8"}],
+   afterText:"黑王被迫 Kxh8。現在找最後一手。",
+   success:"Qh8+！這一步是皇后犧牲。重點不是皇后的分值，而是它把黑王強迫到 h8。",
+   alternatives:[
+    {from:"h5",to:"f7",title:"Qxf7+：自然將軍",tag:"過早兌現",pros:"仍是強制著。",cons:"你急著吃 f7，卻錯過把王『拖到指定格』的皇后犧牲。",coach:"將殺組合常需要先控制 king placement，而不是先收 material。"}
+   ],
+   other:{title:"其他走法",tag:"計算中斷",pros:"你已找到第一手的攻擊概念。",cons:"若第二手無法繼續，代表你可能只看到第一手效果，沒有在落子前算完整條強制線。",coach:"在攻王題裡，第一手落下前至少問：對方最佳回應後，我下一個 forcing move 是什麼？"}
+  },
+  {
+   prompt:"第 3 手：黑王在 h8。白方一手結束。",
+   expected:{from:"g5",to:"f7"},
+   success:"Nxf7#。完成。前兩手皇后不是在『贏東西』，而是在安排黑王的位置，最後由騎士封死。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"終局圖像辨識",pros:"你已經算到第三層。",cons:"最後一步若看不到 Nxf7#，通常是沒有完整檢查 king escape squares。",coach:"將軍後逐格檢查：王能逃哪裡？能吃掉將軍子嗎？能擋嗎？能由別子吃掉嗎？"}
+  }
+ ],
+ report:{
+  strength:"如果你能完整找到 Qh5 → Qh8+ → Nxf7#，代表你的 forcing-line calculation 與攻王幾何已經不錯。",
+  focus:"若第一手卡住，重點練 quiet move；若第二或第三手卡住，重點是『第一手前就多算兩層』。",
+  rule:"高效率搜尋：先找所有 checks，但不要停在 checks；再找 forcing threats，尤其是能限制王逃生格的 quiet move。",
+  line:"Qh5! Kg8 → Qh8+! Kxh8 → Nxf7#"
+ }
+},
+{
+ id:"M12-Q02",alias:"D2",module:"M12",difficulty:"難",title:"D2｜被攻擊時不要自動防守",
+ type:"diagnostic",
+ fen:"r3r1k1/pp3p1p/5Q2/4q3/1P3N2/2BB2P1/1P5P/R6K w - - 0 1",
+ intro:"白后正在被黑后攻擊。白方走。不要因為被攻擊就自動撤退，先找全盤最強的一手。",
+ stages:[
+  {
+   prompt:"第 1 手：白方最強的一手？",
+   expected:{from:"d3",to:"h7"},
+   after:[{from:"g8",to:"h7"}],
+   afterText:"黑王走 Kxh7。繼續。",
+   success:"Bxh7+！你正確忽略了『皇后被攻擊』這件事，因為你有更強的 forcing move。",
+   alternatives:[
+    {from:"f6",to:"e5",title:"Qxe5：先處理被攻擊的皇后",tag:"威脅固定",pros:"你看到自己的皇后被攻擊，而且 Qxe5 還能吃掉對方皇后。",cons:"但這局存在直接將殺。只要有 forced mate，material concern 都是次要。",coach:"每次重要棋子被攻擊時，不要立刻回應；先做一次 CCT：Checks, Captures, Threats。"},
+    {from:"f4",to:"g6",title:"Ng6：靠近王，但順序錯",tag:"move order",pros:"你有注意到 knight 對王翼的威脅。",cons:"真正關鍵是先用 Bxh7+ 強迫王的位置；順序錯就讓對手有防守時間。",coach:"戰術不只看『做什麼』，還要看『先做哪個』。"}
+   ],
+   other:{title:"其他走法",tag:"防守反射",pros:"你可能在處理皇后安全或一般發展。",cons:"局面有立即 forced mate；若沒先找 Bxh7+，代表對手威脅讓你的注意力被綁架。",coach:"自己的棋被攻擊時，先問：我能不能用更強的將軍迫使對手沒有時間吃它？"}
+  },
+  {
+   prompt:"第 2 手：黑王在 h7。白方如何繼續強迫？",
+   expected:{from:"f6",to:"f7"},
+   after:[{from:"h7",to:"h8"}],
+   afterText:"黑王選擇 ...Kh8。找最後一手。",
+   success:"Qxf7+。這是第二個 forcing move；你沒有停下來收材料，而是繼續逼王。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"forcing line 續航",pros:"你找到第一手犧牲。",cons:"若這裡停下，通常表示你在犧牲前沒有先算到『犧牲之後靠什麼繼續』。",coach:"任何 sacrifice 在落子前都要回答：對方接受後，我的下一個 forcing move 是什麼？"}
+  },
+  {
+   prompt:"第 3 手：黑王到了 h8。白方一手將死。",
+   expected:{from:"f4",to:"g6"},
+   success:"Ng6#。完成。這條線的核心是 bishop sacrifice → queen forcing check → knight mate。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"棋子協同",pros:"你已經逼王到角落。",cons:"若沒看到 Ng6#，通常是只追蹤 queen，沒有重新掃描 knight 的控制格。",coach:"每次王被逼到新位置，都重新掃一次所有己方棋子，而不是只看剛剛走的那顆。"}
+  }
+ ],
+ branches:[
+  "若 1...Kf8，白方直接 2.Ng6#。",
+  "若 1...Kxh7 2.Qxf7+ Kh6，則 3.Qg6#。",
+  "若 1...Kxh7 2.Qxf7+ Kh8，則 3.Ng6#。",
+  "若 1...Kxh7 2.Qxf7+ Qg7，則 3.Qxg7#。"
+ ],
+ report:{
+  strength:"完整解出代表你能在自己皇后受攻時仍優先計算 forcing moves。",
+  focus:"最常見弱點是『被攻擊就自動反應』，以及 sacrifice 只算第一手、沒有算接受後的續手。",
+  rule:"被攻擊 ≠ 必須處理。先問：我有沒有 check、強制 capture、或 mate threat，讓對手根本沒時間執行威脅？",
+  line:"Bxh7+! Kxh7 → Qxf7+ Kh8 → Ng6#"
+ }
+},
+{
+ id:"M12-Q03",alias:"D3",module:"M12",difficulty:"深",title:"D3｜不要自動升后",
+ type:"diagnostic",
+ fen:"5r2/3R1P1k/7p/8/q7/1p6/PP6/K5Q1 w - - 0 1",
+ intro:"白方走。這題有一個很不自然的決定。不要假設『升變一定選皇后』。",
+ stages:[
+  {
+   prompt:"第 1 手：白方如何開始強制線？",
+   expected:{from:"g1",to:"g8"},
+   after:[{from:"f8",to:"g8"}],
+   afterText:"黑車被迫 Rxg8。現在白兵到達 f8 時，你必須選升變棋子。",
+   success:"Qg8+！皇后犧牲把 f8 清空，讓 f7 兵可以升變。",
+   alternatives:[
+    {from:"d7",to:"h7",title:"Rh7+：看起來直接",tag:"表面將軍",pros:"你有看到 rook 與 king 的接近。",cons:"它沒有像 Qg8+ 一樣強迫黑車離開 f8，因此沒有創造下一手升變的條件。",coach:"有時第一手的目的不是將死，而是『清除某一格』。"}
+   ],
+   other:{title:"其他走法",tag:"幾何／清格",pros:"你在找將軍或升變。",cons:"這題關鍵是先用 Qg8+ 把黑車從 f8 拉走。",coach:"看到即將升變的兵時，先問：升變格被誰佔住？能不能用 forcing move 把它引開？"}
+  },
+  {
+   prompt:"第 2 手：f7 兵走到 f8。升變成哪一顆棋？",
+   expected:{from:"f7",to:"f8",promotion:"n"},
+   after:[{from:"h7",to:"h8"}],
+   afterText:"黑王走 ...Kh8。最後一手。",
+   success:"f8=N+！關鍵是升馬才會立刻攻擊 h7 的黑王。升后反而沒有 check。",
+   alternatives:[
+    {from:"f7",to:"f8",promotion:"q",title:"f8=Q：最自然，但錯",tag:"自動升后",pros:"皇后名義價值最高。",cons:"問題是 queen 在 f8 並不攻擊 h7，所以不是 forcing check；你給了黑方喘息。",coach:"升變不是選『最貴』，而是選『當下功能最強』。"},
+    {from:"f7",to:"f8",promotion:"r",title:"f8=R：也沒有將軍",tag:"升變功能",pros:"車很強。",cons:"f8 的 rook 不攻擊 h7。",coach:"先看每種 promotion 對 king 的立即控制格。"},
+    {from:"f7",to:"f8",promotion:"b",title:"f8=B：也沒有將軍",tag:"升變功能",pros:"象能控制長斜線。",cons:"從 f8 的 bishop 也不攻擊 h7。",coach:"只有 knight 從 f8 可以攻擊 h7。"}
+   ],
+   other:{title:"其他走法",tag:"underpromotion awareness",pros:"你知道要推兵。",cons:"若沒有比較 Q/R/B/N 的功能，就容易機械式升后。",coach:"promotion 前固定做 2 秒檢查：Q、R、B、N 哪個會 check／mate／fork？"}
+  },
+  {
+   prompt:"第 3 手：黑王在 h8。白方一手將死。",
+   expected:{from:"d7",to:"h7"},
+   success:"Rh7#。完成。這題的精華是 Q sacrifice → knight underpromotion check → rook mate。",
+   alternatives:[],
+   other:{title:"其他走法",tag:"收尾幾何",pros:"你已找到最難的 underpromotion。",cons:"最後若沒看到 Rh7#，代表強制線末端還需要更完整地掃 rook lines。",coach:"每一個 check 後都重新列出王的所有逃生格，再找能一次封死的 long-range piece。"}
+  }
+ ],
+ report:{
+  strength:"能獨立找到 f8=N+，代表你不會被『棋子價值』的直覺綁架，能根據功能選 promotion。",
+  focus:"若你升后，弱點不是不懂規則，而是 decision automation：把常見選項當成預設答案。",
+  rule:"升變前永遠比較四種棋：哪個能 check？哪個能控制逃生格？哪個能形成 fork？",
+  line:"Qg8+! Rxg8 → f8=N+! Kh8 → Rh7#"
+ }
+}
+);
+})();</script>
+
+<script>
+(function(){
+"use strict";
 const U={w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}};
 const C=window.CHESS_COURSE;
-let idx=0, game=null, selected=null, legal=[], lastMove=null, revealed=false, diagStage=0, diagMistakes=[], pendingPromotion=null;
-const completed=new Set(JSON.parse(localStorage.getItem("chessCourseCompleted")||"[]"));
-const els={
- board:document.getElementById("board"),moduleRow:document.getElementById("moduleRow"),
- questionSelect:document.getElementById("questionSelect"),moduleName:document.getElementById("moduleName"),
- title:document.getElementById("title"),prompt:document.getElementById("prompt"),
- instruction:document.getElementById("instruction"),choices:document.getElementById("choices"),
- result:document.getElementById("result"),qCode:document.getElementById("qCode"),topCode:document.getElementById("topCode"),
- progressText:document.getElementById("progressText"),progressFill:document.getElementById("progressFill"),
- moduleProgress:document.getElementById("moduleProgress"),statusbar:document.getElementById("statusbar")
-};
-function moduleOf(q){return C.modules.find(m=>m.id===q.module)}
-function saveProgress(){localStorage.setItem("chessCourseCompleted",JSON.stringify([...completed]));localStorage.setItem("chessCourseLast",String(idx))}
-function markDone(){completed.add(C.questions[idx].id);saveProgress();updateProgress()}
-function updateProgress(){
- const n=completed.size,total=C.questions.length;
- els.progressText.textContent="已完成 "+n+" / "+total;
- els.progressFill.style.width=(n/total*100)+"%";
- const q=C.questions[idx], mi=C.modules.findIndex(m=>m.id===q.module);
- els.moduleProgress.textContent="模組 "+(mi+1)+" / "+C.modules.length;
- els.statusbar.innerHTML=(completed.has(q.id)?"<span class='tag done'>✓ 已完成</span>":"<span class='tag'>尚未完成</span>")+
-   "<span class='tag'>"+(q.type==="diagnostic"?"診斷題":(q.type==="move"?"棋盤走棋題":"選擇題"))+"</span>"+
-   (q.difficulty?"<span class='tag'>難度："+q.difficulty+"</span>":"");
+let idx=0, game=null, selected=null, legal=[], diagStage=0, diagMistakes=[], pendingPromotion=null;
+let locked=false, sessionToken=0, lastMove=null;
+const done=new Set(JSON.parse(localStorage.getItem("chessV8Done")||"[]"));
+const $=id=>document.getElementById(id);
+const E={board:$("board"),modules:$("modules"),qsel:$("qsel"),title:$("title"),code:$("code"),prompt:$("prompt"),
+ status:$("status"),choices:$("choices"),feedback:$("feedback"),progress:$("progress"),progressText:$("progressText"),
+ hint:$("hint"),answer:$("answer"),reset:$("reset"),prev:$("prev"),next:$("next"),jump:$("jump"),jumpBtn:$("jumpBtn")};
+
+function q(){return C.questions[idx]}
+function mod(){return C.modules.find(m=>m.id===q().module)}
+function quick(x){return "<span class='quick'>"+x+"</span>"}
+function save(){localStorage.setItem("chessV8Done",JSON.stringify([...done]));localStorage.setItem("chessV8Last",String(idx))}
+function markDone(){done.add(q().id);save();renderProgress()}
+function renderProgress(){
+ const n=done.size,total=C.questions.length;
+ E.progress.style.width=(100*n/total)+"%";
+ E.progressText.textContent="完成 "+n+" / "+total;
 }
-function parseFenBoard(fen){
- const out={}, rows=fen.split(" ")[0].split("/");
- rows.forEach((row,ri)=>{
-   let file=0;
-   for(const ch of row){
-     if(/[1-8]/.test(ch)){file+=Number(ch);continue}
-     const color=ch===ch.toUpperCase()?"w":"b", type=ch.toLowerCase();
-     const sq="abcdefgh"[file]+(8-ri);
-     out[sq]={color,type};file++;
-   }
- });
+function parseFen(fen){
+ const out={},rows=fen.split(" ")[0].split("/");
+ rows.forEach((row,ri)=>{let fi=0;for(const ch of row){
+   if(/[1-8]/.test(ch)){fi+=Number(ch);continue}
+   out["abcdefgh"[fi]+(8-ri)]={color:ch===ch.toUpperCase()?"w":"b",type:ch.toLowerCase()};fi++;
+ }});
  return out;
 }
-function boardPiece(sq){
+function getPiece(sq){
  if(game){try{return game.get(sq)}catch(e){}}
- return parseFenBoard(C.questions[idx].fen)[sq]||null;
+ return parseFen(q().fen)[sq]||null;
 }
 function renderBoard(){
- const q=C.questions[idx], fs=["a","b","c","d","e","f","g","h"], rs=["8","7","6","5","4","3","2","1"];
- els.board.innerHTML="";
+ E.board.innerHTML="";
+ const fs="abcdefgh".split(""),rs="87654321".split("");
  rs.forEach((r,ri)=>fs.forEach((f,fi)=>{
-   const sq=f+r,p=boardPiece(sq),d=document.createElement("div");
+   const sq=f+r,p=getPiece(sq),d=document.createElement("button");
+   d.type="button";
    d.className="sq "+(((ri+fi)%2===0)?"light":"dark");
+   d.dataset.sq=sq;
    if(selected===sq)d.classList.add("sel");
    if(lastMove&&(lastMove.from===sq||lastMove.to===sq))d.classList.add("last");
-   const lm=legal.find(m=>m.to===sq);
-   if(lm)d.classList.add(boardPiece(sq)?"cap":"dot");
+   const lm=legal.find(x=>x.to===sq);
+   if(lm)d.classList.add(p?"cap":"dot");
    if(p){const s=document.createElement("span");s.className="piece "+p.color;s.textContent=U[p.color][p.type];d.appendChild(s)}
-   const rr=document.createElement("span");rr.className="coord rank";rr.textContent=fi===0?r:"";d.appendChild(rr);
-   const ff=document.createElement("span");ff.className="coord file";ff.textContent=ri===7?f:"";d.appendChild(ff);
-   d.onclick=()=>tapSquare(sq);
-   els.board.appendChild(d);
+   if(fi===0){const c=document.createElement("span");c.className="coord rank";c.textContent=r;d.appendChild(c)}
+   if(ri===7){const c=document.createElement("span");c.className="coord file";c.textContent=f;d.appendChild(c)}
+   d.addEventListener("click",()=>tap(sq));
+   E.board.appendChild(d);
  }));
 }
-function tapSquare(sq){
- const q=C.questions[idx];
- if(q.type!=="move" && q.type!=="diagnostic") return;
- if(!game) return;
+function tap(sq){
+ if(locked)return;
+ const qq=q();
+ if(qq.type!=="move"&&qq.type!=="diagnostic")return;
+ if(!game){showError("走棋引擎未初始化，請按「重設本題」。");return}
  if(!selected){
    const p=game.get(sq);
    if(!p||p.color!==game.turn())return;
    selected=sq;legal=game.moves({square:sq,verbose:true});renderBoard();return;
  }
  if(sq===selected){selected=null;legal=[];renderBoard();return}
- const own=game.get(sq);
- if(own&&own.color===game.turn()){selected=sq;legal=game.moves({square:sq,verbose:true});renderBoard();return}
- const cand=legal.find(m=>m.to===sq);
- if(!cand)return;
- const from=selected;
- const moving=game.get(from);
- if(moving && moving.type==="p" && (sq.endsWith("8")||sq.endsWith("1"))){
-   pendingPromotion={from,to:sq};
-   selected=null;legal=[];renderBoard();
-   showPromotionPicker();
+ const p=game.get(sq);
+ if(p&&p.color===game.turn()){selected=sq;legal=game.moves({square:sq,verbose:true});renderBoard();return}
+ if(!legal.some(x=>x.to===sq))return;
+ const from=selected,moving=game.get(from);
+ selected=null;legal=[];
+ if(moving&&moving.type==="p"&&(sq.endsWith("8")||sq.endsWith("1"))){
+   pendingPromotion={from,to:sq};showPromotion();renderBoard();return;
+ }
+ doMove(from,sq,"q");
+}
+function showPromotion(){
+ E.feedback.className="feedback show";
+ E.feedback.innerHTML="<div class='box'><b>選擇升變棋子</b><div class='promo'>"+
+ ["q","r","b","n"].map(p=>"<button type='button' data-promo='"+p+"'>"+({q:"♕ 后",r:"♖ 車",b:"♗ 象",n:"♘ 馬"}[p])+"</button>").join("")+
+ "</div></div>";
+ E.feedback.querySelectorAll("[data-promo]").forEach(b=>b.addEventListener("click",()=>{
+   if(!pendingPromotion)return;
+   const x=pendingPromotion;pendingPromotion=null;doMove(x.from,x.to,b.dataset.promo);
+ }));
+}
+function doMove(from,to,promotion){
+ let m=null;
+ try{m=game.move({from,to,promotion:promotion||"q"})}catch(e){}
+ if(!m){showError("這一步目前無法執行，請重設本題。");renderBoard();return}
+ lastMove={from,to};
+ if(q().type==="diagnostic") handleDiagnostic(m,from,to,promotion||"q");
+ else handleMoveQuestion(m,from,to,promotion||"q");
+ renderBoard();
+}
+function matches(s,from,to,p){return !!s&&s.from===from&&s.to===to&&(!s.promotion||s.promotion===p)}
+function altFor(stage,from,to,p){return (stage.alternatives||[]).find(a=>matches(a,from,to,p))}
+function handleMoveQuestion(m,from,to,p){
+ const ok=(q().expected||[]).some(x=>matches(x,from,to,p));
+ if(ok){markDone();showGood("正確："+m.san,q().correct||"")}
+ else{game.undo();lastMove=null;showBad("這步是 "+m.san,"先重新檢查局面，再試一次。")}
+}
+function handleDiagnostic(m,from,to,p){
+ const qq=q(),stage=(qq.stages||[])[diagStage];
+ if(!stage){game.undo();lastMove=null;showError("診斷資料沒有載入完整。請按重設本題。");return}
+ if(!matches(stage.expected,from,to,p)){
+   game.undo();lastMove=null;
+   const a=altFor(stage,from,to,p)||stage.other||{title:"這不是本題最佳線",tag:"候選著",pros:"你提出了一個合法候選著。",cons:"局面存在更強的手段。",coach:"重新檢查所有將軍、吃子與強制威脅。"};
+   diagMistakes.push(a.tag||"其他");
+   E.feedback.className="feedback show";
+   E.feedback.innerHTML="<div class='box bad'><div class='row'><b>"+m.san+"｜"+a.title+"</b>"+quick((qq.alias||qq.id)+"-S"+(diagStage+1)+"-TRY")+"</div>"+
+     "<p><b>優點：</b>"+a.pros+"</p><p><b>問題：</b>"+a.cons+"</p><p><b>下一次怎麼找：</b>"+a.coach+"</p>"+
+     "<details><summary>看這一階段的其他常見答案</summary>"+stageAlternatives(stage,qq,diagStage)+"</details>"+
+     "<p><b>棋盤已回到你落子前，直接再試。</b></p></div>";
    return;
  }
- executeBoardMove(from,sq,"q");
-}
-function showPromotionPicker(){
- const q=C.questions[idx];
- els.result.classList.add("show");
- const code=(q.alias||q.id)+"-PROMO";
- els.result.innerHTML="<div class='explain'><div class='explain-top'><strong>選擇升變棋子</strong>"+quick(code)+"</div>"+
- "<div class='choices'>"+
- "<button class='choice' onclick=\"choosePromotion('q')\">♕ Queen／后</button>"+
- "<button class='choice' onclick=\"choosePromotion('r')\">♖ Rook／車</button>"+
- "<button class='choice' onclick=\"choosePromotion('b')\">♗ Bishop／象</button>"+
- "<button class='choice' onclick=\"choosePromotion('n')\">♘ Knight／馬</button>"+
- "</div></div>";
-}
-window.choosePromotion=function(p){
- if(!pendingPromotion)return;
- const x=pendingPromotion;pendingPromotion=null;
- executeBoardMove(x.from,x.to,p);
-};
-function executeBoardMove(from,to,promotion){
- const q=C.questions[idx];
- let m=game.move({from,to,promotion:promotion||"q"});
- if(!m)return;
- selected=null;legal=[];lastMove={from,to};
- if(q.type==="diagnostic"){
-   handleDiagnosticMove(q,m,from,to,promotion||"q");
+ // correct user move
+ const token=sessionToken;
+ const success=stage.success||"正確。";
+ E.feedback.className="feedback show";
+ E.feedback.innerHTML="<div class='box good'><div class='row'><b>✓ "+m.san+"</b>"+quick((qq.alias||qq.id)+"-S"+(diagStage+1)+"-OK")+"</div><p>"+success+"</p>"+
+   ((stage.after&&stage.after.length)?"<div class='thinking'>黑方自動走棋中…</div>":"")+"</div>";
+ if(stage.after&&stage.after.length){
+   locked=true;
+   setTimeout(()=>{
+     if(token!==sessionToken)return;
+     const sans=[];
+     let ok=true;
+     for(const a of stage.after){
+       let r=null;try{r=game.move({from:a.from,to:a.to,promotion:a.promotion||"q"})}catch(e){}
+       if(!r){ok=false;break}
+       sans.push(r.san);lastMove={from:a.from,to:a.to};
+     }
+     locked=false;
+     if(!ok){
+       showError("黑方自動回應失敗。這是網站問題，不是你的答案問題；請按重設本題。");
+       renderBoard();return;
+     }
+     diagStage++;
+     renderBoard();
+     if(diagStage>=(qq.stages||[]).length){
+       finishDiagnostic(success);
+     }else{
+       renderDiagnosticPrompt();
+       E.feedback.className="feedback show";
+       E.feedback.innerHTML="<div class='box good'><div class='row'><b>✓ "+m.san+"</b>"+quick((qq.alias||qq.id)+"-S"+diagStage+"-OK")+"</div><p>"+success+"</p></div>"+
+         "<div class='box auto'><b>黑方已自動走："+sans.join("、")+"</b><p>"+(stage.afterText||"輪到你繼續。")+"</p></div>";
+     }
+   },450);
  }else{
-   const ok=(q.expected||[]).some(x=>x.from===from&&x.to===to&&(!x.promotion||x.promotion===(promotion||"q")));
-   if(ok){
-     markDone();showMoveResult(true,m);
-   }else{
-     game.undo();lastMove=null;showMoveResult(false,m);
-   }
+   diagStage++;
+   if(diagStage>=(qq.stages||[]).length)finishDiagnostic(success);
+   else renderDiagnosticPrompt();
  }
- renderBoard();
 }
-function quick(code){return "<span class='quick'>快速索引 "+code+"</span>"}
-function showMoveResult(ok,m){
- const q=C.questions[idx];revealed=true;els.result.classList.add("show");
- let h="<div class='explain "+(ok?"good":"bad")+"'><div class='explain-top'><strong>"+(ok?"✓ 正確":"這步不是本題目標")+"</strong>"+quick(q.id+(ok?"-ANS":"-TRY"))+"</div>"+
-   (ok?q.correct:"這步是 "+m.san+"。先讀下面的常見錯法，再按『重設本題』重試。")+"</div>";
- if(q.common&&q.common.length){
-   h+="<div class='common'><h3>常見想法／錯法</h3>";
-   q.common.forEach(x=>h+="<div class='explain'><div class='explain-top'><strong>"+x.title+"</strong>"+quick(q.id+"-"+x.code)+"</div>"+x.text+"</div>");
-   h+="</div>";
- }
- els.result.innerHTML=h;
-}
-function answerChoice(choice){
- const q=C.questions[idx];revealed=true;els.result.classList.add("show");
- if(choice.correct)markDone();
- Array.from(els.choices.children).forEach((b,i)=>{
-   const c=q.choices[i]; if(c.correct)b.classList.add("correct"); else if(c.id===choice.id)b.classList.add("wrong"); b.disabled=true;
+function stageAlternatives(stage,qq,si){
+ let h="";
+ (stage.alternatives||[]).forEach((a,i)=>{
+   h+="<div class='mini'><b>"+a.title+"</b> "+quick((qq.alias||qq.id)+"-S"+(si+1)+"-ALT"+(i+1))+
+   "<br>優點："+a.pros+"<br>問題："+a.cons+"<br>修正："+a.coach+"</div>";
  });
- let h="<div class='explain "+(choice.correct?"good":"bad")+"'><div class='explain-top'><strong>"+(choice.correct?"✓ 正確":"✗ 這個選項不是答案")+"</strong>"+quick(q.id+"-"+choice.id)+"</div>"+choice.explain+"</div>";
- h+="<div class='common'><h3>每個選項為什麼</h3>";
- q.choices.forEach(c=>{
-   h+="<div class='explain "+(c.correct?"good":"")+"'><div class='explain-top'><strong>"+c.id+". "+c.text+"</strong>"+quick(q.id+"-"+c.id)+"</div>"+c.explain+"</div>";
- });
- h+="</div>";
- els.result.innerHTML=h;
+ if(stage.other)h+="<div class='mini'><b>其他走法</b><br>問題："+stage.other.cons+"<br>修正："+stage.other.coach+"</div>";
+ return h||"<div class='mini'>這一階段沒有另外列出的常見答案。</div>";
 }
-function revealAnswer(){
- const q=C.questions[idx];revealed=true;els.result.classList.add("show");
- if(q.type==="mcq"){
-   Array.from(els.choices.children).forEach((b,i)=>{if(q.choices[i].correct)b.classList.add("correct");b.disabled=true});
-   let h="<div class='common'><h3>完整解答</h3>";
-   q.choices.forEach(c=>h+="<div class='explain "+(c.correct?"good":"")+"'><div class='explain-top'><strong>"+c.id+". "+c.text+"</strong>"+quick(q.id+"-"+c.id)+"</div>"+c.explain+"</div>");
-   h+="</div>";els.result.innerHTML=h;
- }else{
-   let h="<div class='explain good'><div class='explain-top'><strong>答案</strong>"+quick(q.id+"-ANS")+"</div>"+q.correct+"</div>";
-   if(q.common){q.common.forEach(x=>h+="<div class='explain'><div class='explain-top'><strong>"+x.title+"</strong>"+quick(q.id+"-"+x.code)+"</div>"+x.text+"</div>")}
-   els.result.innerHTML=h;
+function solutionHtml(qq){
+ let h="<div class='box solution'><h3>完整答案｜"+(qq.alias||qq.id)+"</h3>";
+ if(qq.report){
+   h+="<p><b>最佳線：</b>"+qq.report.line+"</p><p><b>重點：</b>"+qq.report.rule+"</p>";
  }
+ (qq.stages||[]).forEach((st,i)=>{
+   h+="<details open><summary><b>第 "+(i+1)+" 手</b>｜最佳："+fmt(st.expected)+"</summary>"+
+   "<div class='mini good'><b>為什麼：</b>"+(st.success||"")+"</div>"+stageAlternatives(st,qq,i)+"</details>";
+ });
+ if(qq.branches&&qq.branches.length)h+="<details><summary><b>其他黑方防守分支</b></summary><div class='mini'>"+qq.branches.map(x=>"• "+x).join("<br>")+"</div></details>";
+ if(diagMistakes.length)h+="<p><b>你本次出現的弱點：</b>"+[...new Set(diagMistakes)].join("、")+"</p>";
+ h+="</div>";return h;
 }
+function fmt(s){if(!s)return"";return s.from+" → "+s.to+(s.promotion?" ="+s.promotion.toUpperCase():"")}
+function finishDiagnostic(success){
+ markDone();locked=false;
+ E.prompt.textContent="完成 "+(q().alias||q().id);
+ E.status.textContent="完成。下面是完整診斷。";
+ E.feedback.className="feedback show";
+ E.feedback.innerHTML="<div class='box good'><b>✓ "+success+"</b></div>"+solutionHtml(q());
+}
+function renderDiagnosticPrompt(){
+ const qq=q(),st=(qq.stages||[])[diagStage];
+ E.prompt.textContent=st?st.prompt:(qq.intro||"白方走，找最佳著。");
+ E.status.textContent="第 "+Math.min(diagStage+1,(qq.stages||[]).length)+" / "+(qq.stages||[]).length+" 手｜你只走白方；黑方會自動回應";
+}
+function showGood(a,b){E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box good'><b>"+a+"</b><p>"+b+"</p></div>"}
+function showBad(a,b){E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box bad'><b>"+a+"</b><p>"+b+"</p></div>"}
+function showError(x){E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box bad'><b>網站錯誤</b><p>"+x+"</p></div>"}
 function renderChoices(){
- const q=C.questions[idx];els.choices.innerHTML="";
- if(q.type!=="mcq")return;
- q.choices.forEach(c=>{
-   const b=document.createElement("button");b.className="choice";b.innerHTML="<strong>"+c.id+".</strong> "+c.text;b.onclick=()=>answerChoice(c);els.choices.appendChild(b);
+ E.choices.innerHTML="";
+ if(q().type!=="mcq")return;
+ q().choices.forEach(c=>{
+   const b=document.createElement("button");b.type="button";b.className="choice";b.innerHTML="<b>"+c.id+".</b> "+c.text;
+   b.addEventListener("click",()=>{
+     E.choices.querySelectorAll("button").forEach(x=>x.disabled=true);
+     if(c.correct){b.classList.add("correct");markDone()}else b.classList.add("wrong");
+     const correct=q().choices.find(x=>x.correct);
+     E.feedback.className="feedback show";
+     E.feedback.innerHTML="<div class='box "+(c.correct?"good":"bad")+"'><b>"+(c.correct?"✓ 正確":"✗ 不是最佳答案")+"</b><p>"+c.explain+"</p></div>"+
+       "<details><summary>每個選項的解釋</summary>"+
+       q().choices.map(x=>"<div class='mini "+(x.correct?"good":"")+"'><b>"+x.id+". "+x.text+"</b><br>"+x.explain+"</div>").join("")+"</details>";
+     if(!c.correct&&correct)E.choices.children[q().choices.indexOf(correct)].classList.add("correct");
+   });
+   E.choices.appendChild(b);
  });
-}
-function loadQuestion(newIdx){
- idx=Math.max(0,Math.min(C.questions.length-1,newIdx));
- const q=C.questions[idx],m=moduleOf(q);
- selected=null;legal=[];lastMove=null;revealed=false;pendingPromotion=null;diagStage=0;diagMistakes=[];
- els.result.classList.remove("show");els.result.innerHTML="";
- try{
-   game=(typeof Chess!=="undefined")?new Chess(q.fen):null;
- }catch(e){
-   game=null;
- }
- els.moduleName.textContent=(m?m.title:q.module)+"｜"+(m?m.subtitle:"");
- els.title.textContent=q.title;els.qCode.textContent=q.alias||q.id;els.topCode.textContent=q.alias||q.id;
- els.prompt.textContent=q.prompt||q.intro||"";
- els.instruction.textContent=q.type==="move"?"直接在棋盤上點棋子再點目標格作答。":"看圖作答。";
- renderBoard();
- renderChoices();
- renderModules();
- renderSelect();
- updateProgress();
- if(q.type==="diagnostic")setDiagnosticStageText(q);
- if(typeof Chess==="undefined"){
-   els.result.classList.add("show");
-   els.result.innerHTML="<div class='explain bad'><strong>棋盤已顯示，但走棋引擎尚未載入。</strong><br>請重新整理一次頁面；棋盤本身不會再因此消失。</div>";
- }
- saveProgress();
- window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderModules(){
- const cur=C.questions[idx].module;els.moduleRow.innerHTML="";
+ E.modules.innerHTML="";
  C.modules.forEach(m=>{
-   const b=document.createElement("button");b.className="module-btn"+(m.id===cur?" active":"");b.textContent=m.id+" "+m.title;
-   b.onclick=()=>loadQuestion(C.questions.findIndex(q=>q.module===m.id));els.moduleRow.appendChild(b);
+   const b=document.createElement("button");b.type="button";b.className="pill"+(m.id===q().module?" active":"");
+   b.textContent=m.id+" "+m.title;b.addEventListener("click",()=>load(C.questions.findIndex(x=>x.module===m.id)));
+   E.modules.appendChild(b);
  });
 }
 function renderSelect(){
- els.questionSelect.innerHTML="";
- C.questions.forEach((q,i)=>{const o=document.createElement("option");o.value=i;o.textContent=q.id+" · "+q.title;if(i===idx)o.selected=true;els.questionSelect.appendChild(o)});
+ E.qsel.innerHTML="";
+ C.questions.forEach((x,i)=>{
+   const o=document.createElement("option");o.value=i;o.textContent=(x.alias?x.alias+" · ":"")+x.id+" · "+(x.type==="diagnostic"?"最佳著挑戰":x.title);
+   if(i===idx)o.selected=true;E.qsel.appendChild(o);
+ });
 }
-document.getElementById("hintBtn").onclick=()=>{
- const q=C.questions[idx];
- if(q.type==="diagnostic"){
-   const st=q.stages[diagStage];
-   els.result.classList.add("show");
-   els.result.innerHTML="<div class='explain'><strong>不直接提示最佳著。</strong><br>先問自己：所有將軍？所有強制吃子？所有會讓對手無法照自己計畫走的威脅？</div>"+diagnosticCommonHtml(q,st,false);
-   return;
- }
- const hint=q.hint||"先看棋盤上的關係，不要急著靠術語猜。";
- els.result.classList.add("show");els.result.innerHTML="<div class='explain'><div class='explain-top'><strong>提示</strong>"+quick(q.id+"-HINT")+"</div>"+hint+"</div>";
-};
-document.getElementById("resetBtn").onclick=()=>loadQuestion(idx);
-document.getElementById("answerBtn").onclick=()=>{
- const q=C.questions[idx];
- if(q.type==="diagnostic"){
-   revealDiagnosticAll(q);
-   return;
- }
- revealAnswer();
-};
-document.getElementById("prevBtn").onclick=()=>loadQuestion(idx-1);
-document.getElementById("nextBtn").onclick=()=>loadQuestion(idx+1);
-els.questionSelect.onchange=e=>loadQuestion(Number(e.target.value));
-document.getElementById("jumpBtn").onclick=()=>{
- const raw=document.getElementById("jumpInput").value.trim().toUpperCase();
- const base=raw.match(/M\d+-Q\d+/)?.[0];
- let i=C.questions.findIndex(q=>q.id===base || (q.alias||"").toUpperCase()===raw);
- if(i>=0)loadQuestion(i); else alert("找不到這個索引。例：D1、M12-Q01、M2-Q03-C");
-};
-document.getElementById("jumpInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("jumpBtn").click()});
-let start=Number(localStorage.getItem("chessCourseLast")||0);
-const requested=new URLSearchParams(location.search).get("q");
-if(requested){
-  const rq=requested.toUpperCase();
-  const ri=C.questions.findIndex(q=>q.id===rq || (q.alias||"").toUpperCase()===rq);
-  if(ri>=0)start=ri;
+function load(i){
+ sessionToken++;locked=false;idx=Math.max(0,Math.min(C.questions.length-1,i));
+ diagStage=0;diagMistakes=[];selected=null;legal=[];pendingPromotion=null;lastMove=null;
+ E.feedback.className="feedback";E.feedback.innerHTML="";E.choices.innerHTML="";
+ const qq=q(),mm=mod();
+ try{game=new Chess(qq.fen)}catch(e){game=null}
+ E.code.textContent=(qq.alias?qq.alias+" · ":"")+qq.id;
+ E.title.textContent=qq.type==="diagnostic"?(qq.alias||qq.id)+"｜最佳著挑戰":qq.title;
+ E.prompt.textContent=qq.type==="diagnostic"?((qq.stages||[])[0]?.prompt||qq.intro||"白方走。"):qq.prompt;
+ E.status.textContent=qq.type==="diagnostic"?"你只走白方；黑方會自動回應。":"看棋盤直接作答。";
+ renderBoard();renderChoices();renderModules();renderSelect();renderProgress();save();
 }
+E.qsel.addEventListener("change",()=>load(Number(E.qsel.value)));
+E.prev.addEventListener("click",()=>load(idx-1));
+E.next.addEventListener("click",()=>load(idx+1));
+E.reset.addEventListener("click",()=>load(idx));
+E.hint.addEventListener("click",()=>{
+ if(q().type==="diagnostic"){
+   const st=(q().stages||[])[diagStage];
+   E.feedback.className="feedback show";
+   E.feedback.innerHTML="<div class='box'><b>引導，不直接給答案</b><p>先依序掃描：所有將軍 → 強制吃子 → 讓對手無法執行自己計畫的威脅。</p></div>"+
+     (st?"<details><summary>查看這階段常見錯法</summary>"+stageAlternatives(st,q(),diagStage)+"</details>":"");
+ }else{
+   E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box'><b>提示</b><p>"+(q().hint||"重新檢查對手威脅與你的強制著。")+"</p></div>";
+ }
+});
+E.answer.addEventListener("click",()=>{
+ if(q().type==="diagnostic"){E.feedback.className="feedback show";E.feedback.innerHTML=solutionHtml(q());return}
+ if(q().type==="mcq"){
+   const c=q().choices.find(x=>x.correct);
+   E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box solution'><b>答案："+(c?c.id+" "+c.text:"")+"</b><p>"+(c?c.explain:"")+"</p></div>";return;
+ }
+ E.feedback.className="feedback show";E.feedback.innerHTML="<div class='box solution'><b>答案</b><p>"+(q().correct||"")+"</p></div>";
+});
+E.jumpBtn.addEventListener("click",()=>{
+ const raw=E.jump.value.trim().toUpperCase();
+ const base=(raw.match(/M\d+-Q\d+/)||[])[0];
+ const i=C.questions.findIndex(x=>x.id===base||(x.alias||"").toUpperCase()===raw);
+ if(i>=0)load(i);else alert("找不到題號，例如 D1、D2、D3、M10-Q01");
+});
+E.jump.addEventListener("keydown",e=>{if(e.key==="Enter")E.jumpBtn.click()});
+let start=Number(localStorage.getItem("chessV8Last")||0);
+const rq=(new URLSearchParams(location.search).get("q")||"").toUpperCase();
+if(rq){const i=C.questions.findIndex(x=>x.id===rq||(x.alias||"").toUpperCase()===rq);if(i>=0)start=i}
 if(!Number.isFinite(start)||start<0||start>=C.questions.length)start=0;
-loadQuestion(start);
+load(start);
+})();
 </script>
-</body>
-</html>
+</body></html>
